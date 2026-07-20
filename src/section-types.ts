@@ -46,7 +46,13 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   },
   values: {
     key: 'values', label: 'Valeurs', kind: 'repeatable',
-    fields: [{ key: 'label', label: 'Libellé', kind: 'text' }],
+    fields: [
+      { key: 'label', label: 'Libellé (forme courte)', kind: 'text' },
+      { key: 'num', label: 'Numéro affiché', kind: 'text' },
+      { key: 'title', label: 'Titre (forme longue)', kind: 'text' },
+      { key: 'text', label: 'Texte', kind: 'textarea' },
+      { key: 'image', label: 'Image', kind: 'image' },
+    ],
     defaultContent: { items: [] },
   },
   features: {
@@ -54,6 +60,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
+      { key: 'image', label: 'Image', kind: 'image' },
     ],
     defaultContent: { items: [] },
   },

@@ -52,12 +52,17 @@ export interface StatItem {
 }
 
 export interface ValueItem {
-  label?: string
+  label?: string       // LeafLife : simple libellé
+  num?: string          // Aurora : numéro affiché ("01", "02"...)
+  title?: string        // Aurora
+  text?: string         // Aurora
+  image?: string        // Aurora
 }
 
 export interface FeatureItem {
   title?: string
   description?: string
+  image?: string   // Aurora
 }
 
 export interface ProcessItem {
