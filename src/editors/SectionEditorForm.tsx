@@ -4,6 +4,7 @@ import type { SectionType } from '../types'
 import { SECTION_TYPES } from '../section-types'
 import { RepeatableListEditor } from './RepeatableListEditor'
 import { HeroEditor } from './HeroEditor'
+import { FeaturedEditor } from './FeaturedEditor'
 import { CtaEditor } from './CtaEditor'
 import { ContactEditor } from './ContactEditor'
 import type { ImagePickerComponent } from './types'
@@ -36,6 +37,8 @@ export function SectionEditorForm({
   switch (type) {
     case 'hero':
       return <HeroEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
+    case 'featured':
+      return <FeaturedEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
     case 'cta':
       return <CtaEditor content={(content as never) ?? {}} onChange={onChange as never} />
     case 'contact':

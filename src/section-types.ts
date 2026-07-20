@@ -32,6 +32,18 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'hero', label: 'Accueil', kind: 'singleton',
     defaultContent: { headline: '', subtext: '', images: [] },
   },
+  featured: {
+    key: 'featured', label: 'Réalisation mise en avant', kind: 'singleton',
+    defaultContent: { name: '', location: '', image: '' },
+  },
+  stats: {
+    key: 'stats', label: 'Chiffres clés', kind: 'repeatable',
+    fields: [
+      { key: 'value', label: 'Valeur', kind: 'text' },
+      { key: 'label', label: 'Libellé', kind: 'text' },
+    ],
+    defaultContent: { items: [] },
+  },
   values: {
     key: 'values', label: 'Valeurs', kind: 'repeatable',
     fields: [{ key: 'label', label: 'Libellé', kind: 'text' }],
@@ -103,7 +115,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   },
   cta: {
     key: 'cta', label: 'Bloc final', kind: 'singleton',
-    defaultContent: { title: '', buttonLabel: '' },
+    defaultContent: { title: '', text: '', button: '' },
   },
   contact: {
     key: 'contact', label: 'Contact', kind: 'singleton',
@@ -122,10 +134,20 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     headline: z.string().optional(),
     subtext: z.string().optional(),
     images: z.array(z.string()).optional(),
+    image: z.string().optional(),
+    kicker: z.string().optional(),
+    cta: z.string().optional(),
+    cta2: z.string().optional(),
+  }),
+  featured: z.object({
+    name: z.string().optional(),
+    location: z.string().optional(),
+    image: z.string().optional(),
   }),
   cta: z.object({
     title: z.string().optional(),
-    buttonLabel: z.string().optional(),
+    text: z.string().optional(),
+    button: z.string().optional(),
   }),
   contact: z.object({
     title: z.string().optional(),
