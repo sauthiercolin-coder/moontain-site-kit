@@ -26,6 +26,7 @@ export type SectionType =
   | 'gallery'
   | 'video'
   | 'map'
+  | 'story'
 
 export interface SectionInstance<T = unknown> {
   id: string
@@ -170,6 +171,13 @@ export interface MapContent {
   address?: string
 }
 
+export interface StoryContent {
+  eyebrow?: string
+  title?: string
+  text?: string
+  image?: string
+}
+
 export interface RepeatableContent<T> {
   items: T[]
 }
@@ -195,3 +203,4 @@ export type SectionContent =
   | ContactContent
   | VideoContent
   | MapContent
+  | StoryContent

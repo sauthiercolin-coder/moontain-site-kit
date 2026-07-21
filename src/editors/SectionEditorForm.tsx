@@ -9,6 +9,7 @@ import { CtaEditor } from './CtaEditor'
 import { ContactEditor } from './ContactEditor'
 import { VideoEditor } from './VideoEditor'
 import { MapEditor } from './MapEditor'
+import { StoryEditor } from './StoryEditor'
 import type { ImagePickerComponent } from './types'
 
 /** Point d'entrée unique des formulaires d'édition — c'est ce composant que
@@ -49,6 +50,8 @@ export function SectionEditorForm({
       return <VideoEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
     case 'map':
       return <MapEditor content={(content as never) ?? {}} onChange={onChange as never} />
+    case 'story':
+      return <StoryEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
     default:
       return null
   }

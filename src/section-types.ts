@@ -198,6 +198,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'map', label: 'Carte / localisation', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: '', address: '' },
   },
+  story: {
+    key: 'story', label: 'Histoire (image + texte)', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { eyebrow: '', title: '', text: '', image: '' },
+  },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
@@ -240,6 +244,12 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   map: z.object({
     title: z.string().optional(),
     address: z.string().optional(),
+  }),
+  story: z.object({
+    eyebrow: z.string().optional(),
+    title: z.string().optional(),
+    text: z.string().optional(),
+    image: z.string().optional(),
   }),
 }
 
