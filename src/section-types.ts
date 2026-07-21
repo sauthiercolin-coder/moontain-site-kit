@@ -18,6 +18,11 @@ interface SectionTypeDefBase {
   /** Mises en page disponibles pour ce type — même contenu, présentation
    * différente (voir SectionInstance.variant). Toujours au moins une entrée. */
   variants: SectionVariant[]
+  /** Choix automatique de la variante d'après le contenu (ex. peu d'éléments
+   * → liste, beaucoup → grille), utilisé quand aucune variante n'a été
+   * choisie explicitement (SectionInstance.variant absent/null). Optionnel :
+   * sans ça, resolveVariant() retombe sur la 1re variante déclarée. */
+  autoVariant?: (content: unknown) => string
 }
 
 interface RepeatableSectionTypeDef extends SectionTypeDefBase {
@@ -90,6 +95,13 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'grid', label: 'Grille de cartes' },
       { key: 'list', label: 'Liste horizontale' },
     ],
+    // Peu d'éléments → liste (chaque élément a plus de place), beaucoup →
+    // grille (reste compact). Ignoré dès qu'une variante est choisie
+    // explicitement dans le CMS.
+    autoVariant: content => {
+      const n = (content as { items?: unknown[] } | undefined)?.items?.length ?? 0
+      return n > 0 && n <= 3 ? 'list' : 'grid'
+    },
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
@@ -264,8 +276,9 @@ export function sectionContentSchema(type: SectionType): z.ZodTypeAny {
 
 /** Variante effective d'une instance de section — retombe sur la 1re
  * variante déclarée si absente ou inconnue. */
-export function resolveVariant(type: SectionType, variant?: string | null): string {
+export function resolveVariant(type: SectionType, variant?: string | null, content?: unknown): string {
   const def = SECTION_TYPES[type]
   if (variant && def.variants.some(v => v.key === variant)) return variant
+  if (def.autoVariant) return def.autoVariant(content)
   return def.variants[0].key
 }
