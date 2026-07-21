@@ -4,18 +4,26 @@ import type { SectionType } from './types'
 export interface RepeatableFieldConfig {
   key: string
   label: string
-  kind: 'text' | 'textarea' | 'image' | 'date'
+  kind: 'text' | 'textarea' | 'image' | 'date' | 'boolean'
+}
+
+export interface SectionVariant {
+  key: string
+  label: string
 }
 
 interface SectionTypeDefBase {
   key: SectionType
   label: string
+  /** Mises en page disponibles pour ce type — même contenu, présentation
+   * différente (voir SectionInstance.variant). Toujours au moins une entrée. */
+  variants: SectionVariant[]
 }
 
 interface RepeatableSectionTypeDef extends SectionTypeDefBase {
   kind: 'repeatable'
   fields: RepeatableFieldConfig[]
-  defaultContent: { items: Record<string, string>[] }
+  defaultContent: { items: Record<string, string | boolean>[] }
 }
 
 interface SingletonSectionTypeDef extends SectionTypeDefBase {
@@ -25,19 +33,21 @@ interface SingletonSectionTypeDef extends SectionTypeDefBase {
 
 export type SectionTypeDef = RepeatableSectionTypeDef | SingletonSectionTypeDef
 
+const DEFAULT_VARIANT: SectionVariant[] = [{ key: 'default', label: 'Standard' }]
+
 // L'ordre ici sert de position par défaut lors de la bascule des données
 // existantes (voir migration 115_migrate_site_content.sql côté moontain-gallerie).
 export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   hero: {
-    key: 'hero', label: 'Accueil', kind: 'singleton',
+    key: 'hero', label: 'Accueil', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { headline: '', subtext: '', images: [] },
   },
   featured: {
-    key: 'featured', label: 'Réalisation mise en avant', kind: 'singleton',
+    key: 'featured', label: 'Réalisation mise en avant', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { name: '', location: '', image: '' },
   },
   stats: {
-    key: 'stats', label: 'Chiffres clés', kind: 'repeatable',
+    key: 'stats', label: 'Chiffres clés', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'value', label: 'Valeur', kind: 'text' },
       { key: 'label', label: 'Libellé', kind: 'text' },
@@ -45,7 +55,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   values: {
-    key: 'values', label: 'Valeurs', kind: 'repeatable',
+    key: 'values', label: 'Valeurs', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'label', label: 'Libellé (forme courte)', kind: 'text' },
       { key: 'num', label: 'Numéro affiché', kind: 'text' },
@@ -56,7 +66,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   features: {
-    key: 'features', label: 'Pourquoi nous', kind: 'repeatable',
+    key: 'features', label: 'Pourquoi nous', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
@@ -65,7 +75,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   process: {
-    key: 'process', label: 'Étapes', kind: 'repeatable',
+    key: 'process', label: 'Étapes', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
@@ -74,6 +84,12 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   },
   services: {
     key: 'services', label: 'Services', kind: 'repeatable',
+    // Preuve de concept du mécanisme de variantes (étape 6) : mêmes champs,
+    // deux mises en page. Voir vertdaltitude-site/app/templates/aurora/sections/Services.tsx.
+    variants: [
+      { key: 'grid', label: 'Grille de cartes' },
+      { key: 'list', label: 'Liste horizontale' },
+    ],
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
@@ -82,7 +98,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   testimonials: {
-    key: 'testimonials', label: 'Avis', kind: 'repeatable',
+    key: 'testimonials', label: 'Avis', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'author', label: 'Auteur', kind: 'text' },
       { key: 'location', label: 'Lieu', kind: 'text' },
@@ -91,7 +107,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   projects: {
-    key: 'projects', label: 'Réalisations', kind: 'repeatable',
+    key: 'projects', label: 'Réalisations', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'name', label: 'Nom', kind: 'text' },
       { key: 'location', label: 'Lieu', kind: 'text' },
@@ -101,7 +117,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   beforeAfter: {
-    key: 'beforeAfter', label: 'Avant/Après', kind: 'repeatable',
+    key: 'beforeAfter', label: 'Avant/Après', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'before', label: 'Avant', kind: 'image' },
@@ -110,7 +126,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   posts: {
-    key: 'posts', label: 'Blog', kind: 'repeatable',
+    key: 'posts', label: 'Blog', kind: 'repeatable', variants: DEFAULT_VARIANT,
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'excerpt', label: 'Résumé', kind: 'textarea' },
@@ -121,17 +137,73 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   cta: {
-    key: 'cta', label: 'Bloc final', kind: 'singleton',
+    key: 'cta', label: 'Bloc final', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: '', text: '', button: '' },
   },
   contact: {
-    key: 'contact', label: 'Contact', kind: 'singleton',
+    key: 'contact', label: 'Contact', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: '', subtitle: '' },
+  },
+  faq: {
+    key: 'faq', label: 'Questions fréquentes', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [
+      { key: 'question', label: 'Question', kind: 'text' },
+      { key: 'answer', label: 'Réponse', kind: 'textarea' },
+    ],
+    defaultContent: { items: [] },
+  },
+  team: {
+    key: 'team', label: 'Équipe', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [
+      { key: 'name', label: 'Nom', kind: 'text' },
+      { key: 'role', label: 'Rôle', kind: 'text' },
+      { key: 'image', label: 'Photo', kind: 'image' },
+      { key: 'bio', label: 'Bio', kind: 'textarea' },
+    ],
+    defaultContent: { items: [] },
+  },
+  logos: {
+    key: 'logos', label: 'Logos partenaires', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [
+      { key: 'name', label: 'Nom', kind: 'text' },
+      { key: 'image', label: 'Logo', kind: 'image' },
+      { key: 'url', label: 'Lien (optionnel)', kind: 'text' },
+    ],
+    defaultContent: { items: [] },
+  },
+  pricing: {
+    key: 'pricing', label: 'Tarifs', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [
+      { key: 'name', label: 'Nom de l’offre', kind: 'text' },
+      { key: 'price', label: 'Prix', kind: 'text' },
+      { key: 'period', label: 'Période (ex. /mois)', kind: 'text' },
+      { key: 'features', label: 'Avantages (une ligne = un avantage)', kind: 'textarea' },
+      { key: 'highlighted', label: 'Mise en avant', kind: 'boolean' },
+    ],
+    defaultContent: { items: [] },
+  },
+  gallery: {
+    key: 'gallery', label: 'Galerie', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [
+      { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'caption', label: 'Légende (optionnel)', kind: 'text' },
+    ],
+    defaultContent: { items: [] },
+  },
+  video: {
+    key: 'video', label: 'Vidéo', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: '', videoUrl: '', poster: '' },
+  },
+  map: {
+    key: 'map', label: 'Carte / localisation', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: '', address: '' },
   },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
-  z.object(Object.fromEntries(fields.map(f => [f.key, z.string().optional()]))).passthrough()
+  z.object(Object.fromEntries(fields.map(f => [
+    f.key, f.kind === 'boolean' ? z.boolean().optional() : z.string().optional(),
+  ]))).passthrough()
 
 const repeatableContentSchema = (fields: RepeatableFieldConfig[]) =>
   z.object({ items: z.array(repeatableItemSchema(fields)).default([]) })
@@ -160,6 +232,15 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     title: z.string().optional(),
     subtitle: z.string().optional(),
   }),
+  video: z.object({
+    title: z.string().optional(),
+    videoUrl: z.string().optional(),
+    poster: z.string().optional(),
+  }),
+  map: z.object({
+    title: z.string().optional(),
+    address: z.string().optional(),
+  }),
 }
 
 /** Schéma de validation du contenu d'une section, pour vérifier côté serveur
@@ -169,4 +250,12 @@ export function sectionContentSchema(type: SectionType): z.ZodTypeAny {
   const def = SECTION_TYPES[type]
   if (def.kind === 'repeatable') return repeatableContentSchema(def.fields)
   return singletonSchemas[type] ?? z.record(z.unknown())
+}
+
+/** Variante effective d'une instance de section — retombe sur la 1re
+ * variante déclarée si absente ou inconnue. */
+export function resolveVariant(type: SectionType, variant?: string | null): string {
+  const def = SECTION_TYPES[type]
+  if (variant && def.variants.some(v => v.key === variant)) return variant
+  return def.variants[0].key
 }

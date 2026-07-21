@@ -3,7 +3,7 @@
 import type { RepeatableFieldConfig } from '../section-types'
 import type { ImagePickerComponent } from './types'
 
-type Item = Record<string, string>
+type Item = Record<string, string | boolean>
 
 export function RepeatableListEditor({
   items, fields, onChange, ImagePicker,
@@ -13,7 +13,7 @@ export function RepeatableListEditor({
   onChange: (items: Item[]) => void
   ImagePicker?: ImagePickerComponent
 }) {
-  const update = (i: number, key: string, value: string) => {
+  const update = (i: number, key: string, value: string | boolean) => {
     const next = items.slice()
     next[i] = { ...next[i], [key]: value }
     onChange(next)
@@ -42,15 +42,24 @@ export function RepeatableListEditor({
           </div>
           {fields.map(f => (
             <label key={f.key} className="flex flex-col gap-1 text-sm">
-              <span className="text-xs opacity-70">{f.label}</span>
-              {f.kind === 'textarea' ? (
-                <textarea value={item[f.key] ?? ''} onChange={e => update(i, f.key, e.target.value)} rows={3} />
-              ) : f.kind === 'image' ? (
-                ImagePicker
-                  ? <ImagePicker value={item[f.key]} onChange={url => update(i, f.key, url)} />
-                  : <input type="text" value={item[f.key] ?? ''} onChange={e => update(i, f.key, e.target.value)} placeholder="URL de l'image" />
+              {f.kind === 'boolean' ? (
+                <span className="flex items-center gap-2">
+                  <input type="checkbox" checked={Boolean(item[f.key])} onChange={e => update(i, f.key, e.target.checked)} />
+                  <span className="text-xs opacity-70">{f.label}</span>
+                </span>
               ) : (
-                <input type={f.kind === 'date' ? 'date' : 'text'} value={item[f.key] ?? ''} onChange={e => update(i, f.key, e.target.value)} />
+                <>
+                  <span className="text-xs opacity-70">{f.label}</span>
+                  {f.kind === 'textarea' ? (
+                    <textarea value={(item[f.key] as string) ?? ''} onChange={e => update(i, f.key, e.target.value)} rows={3} />
+                  ) : f.kind === 'image' ? (
+                    ImagePicker
+                      ? <ImagePicker value={item[f.key] as string} onChange={url => update(i, f.key, url)} />
+                      : <input type="text" value={(item[f.key] as string) ?? ''} onChange={e => update(i, f.key, e.target.value)} placeholder="URL de l'image" />
+                  ) : (
+                    <input type={f.kind === 'date' ? 'date' : 'text'} value={(item[f.key] as string) ?? ''} onChange={e => update(i, f.key, e.target.value)} />
+                  )}
+                </>
               )}
             </label>
           ))}

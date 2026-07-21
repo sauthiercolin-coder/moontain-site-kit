@@ -7,6 +7,8 @@ import { HeroEditor } from './HeroEditor'
 import { FeaturedEditor } from './FeaturedEditor'
 import { CtaEditor } from './CtaEditor'
 import { ContactEditor } from './ContactEditor'
+import { VideoEditor } from './VideoEditor'
+import { MapEditor } from './MapEditor'
 import type { ImagePickerComponent } from './types'
 
 /** Point d'entrée unique des formulaires d'édition — c'est ce composant que
@@ -23,7 +25,7 @@ export function SectionEditorForm({
   const def = SECTION_TYPES[type]
 
   if (def.kind === 'repeatable') {
-    const items = (content as { items?: Record<string, string>[] } | undefined)?.items ?? []
+    const items = (content as { items?: Record<string, string | boolean>[] } | undefined)?.items ?? []
     return (
       <RepeatableListEditor
         items={items}
@@ -43,6 +45,10 @@ export function SectionEditorForm({
       return <CtaEditor content={(content as never) ?? {}} onChange={onChange as never} />
     case 'contact':
       return <ContactEditor content={(content as never) ?? {}} onChange={onChange as never} />
+    case 'video':
+      return <VideoEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
+    case 'map':
+      return <MapEditor content={(content as never) ?? {}} onChange={onChange as never} />
     default:
       return null
   }

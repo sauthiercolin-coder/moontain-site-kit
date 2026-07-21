@@ -19,6 +19,13 @@ export type SectionType =
   | 'cta'
   | 'contact'
   | 'posts'
+  | 'faq'
+  | 'team'
+  | 'logos'
+  | 'pricing'
+  | 'gallery'
+  | 'video'
+  | 'map'
 
 export interface SectionInstance<T = unknown> {
   id: string
@@ -27,6 +34,9 @@ export interface SectionInstance<T = unknown> {
   position: number
   enabled: boolean
   editableByClient: boolean
+  /** Mise en page choisie parmi SECTION_TYPES[type].variants — même contenu,
+   * présentation différente. `undefined`/inconnue = 1re variante du type. */
+  variant?: string
   content: T
 }
 
@@ -115,6 +125,51 @@ export interface ContactContent {
   subtitle?: string
 }
 
+export interface FaqItem {
+  question?: string
+  answer?: string
+}
+
+export interface TeamMemberItem {
+  name?: string
+  role?: string
+  image?: string
+  bio?: string
+}
+
+export interface LogoItem {
+  name?: string
+  image?: string
+  url?: string
+}
+
+export interface PricingPlanItem {
+  name?: string
+  price?: string
+  period?: string
+  /** Une ligne = un avantage, découpée à l'affichage. */
+  features?: string
+  highlighted?: boolean
+}
+
+export interface GalleryImageItem {
+  image?: string
+  caption?: string
+}
+
+export interface VideoContent {
+  title?: string
+  videoUrl?: string
+  poster?: string
+}
+
+export interface MapContent {
+  title?: string
+  /** Autonome : ne dépend pas de business.address pour rester déplaçable/
+   * désactivable indépendamment de la section Contact. */
+  address?: string
+}
+
 export interface RepeatableContent<T> {
   items: T[]
 }
@@ -131,5 +186,12 @@ export type SectionContent =
   | RepeatableContent<ProjectItem>
   | RepeatableContent<BeforeAfterItem>
   | RepeatableContent<PostItem>
+  | RepeatableContent<FaqItem>
+  | RepeatableContent<TeamMemberItem>
+  | RepeatableContent<LogoItem>
+  | RepeatableContent<PricingPlanItem>
+  | RepeatableContent<GalleryImageItem>
   | CtaContent
   | ContactContent
+  | VideoContent
+  | MapContent
