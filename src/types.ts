@@ -31,6 +31,7 @@ export type SectionType =
   | 'deals'
   | 'booking'
   | 'properties'
+  | 'wines'
 
 export interface SectionInstance<T = unknown> {
   id: string
@@ -231,6 +232,19 @@ export interface PropertyItem {
   slug?: string         // page détail du bien (ex. 'villa-contemporaine')
 }
 
+/** Vin / cru (template cave viticole) : carte de bouteille avec millésime,
+ * cépage, région et notes de dégustation. */
+export interface WineItem {
+  name?: string
+  image?: string
+  vintage?: string      // millésime, ex. « 2019 »
+  region?: string       // appellation / région, ex. « Valais AOC »
+  grape?: string        // cépage, ex. « Cornalin »
+  price?: string
+  notes?: string        // notes de dégustation
+  slug?: string         // page détail du vin
+}
+
 export interface RepeatableContent<T> {
   items: T[]
 }
@@ -255,6 +269,7 @@ export type SectionContent =
   | RepeatableContent<RoomItem>
   | RepeatableContent<DealItem>
   | RepeatableContent<PropertyItem>
+  | RepeatableContent<WineItem>
   | CtaContent
   | ContactContent
   | VideoContent

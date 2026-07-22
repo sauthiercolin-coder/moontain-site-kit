@@ -276,6 +276,25 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     ],
     defaultContent: { items: [] },
   },
+  wines: {
+    key: 'wines', label: 'Vins / crus', kind: 'repeatable',
+    variants: [
+      { key: 'grid', label: 'Grille de bouteilles' },
+      { key: 'rows', label: 'Grandes lignes' },
+      { key: 'detail', label: 'Page détail (un vin)' },
+    ],
+    fields: [
+      { key: 'name', label: 'Nom du vin', kind: 'text' },
+      { key: 'image', label: 'Image (bouteille)', kind: 'image' },
+      { key: 'vintage', label: 'Millésime (ex. 2019)', kind: 'text' },
+      { key: 'region', label: 'Appellation / région', kind: 'text' },
+      { key: 'grape', label: 'Cépage', kind: 'text' },
+      { key: 'price', label: 'Prix', kind: 'text' },
+      { key: 'notes', label: 'Notes de dégustation', kind: 'textarea' },
+      { key: 'slug', label: 'Page détail (URL)', kind: 'text' },
+    ],
+    defaultContent: { items: [] },
+  },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
