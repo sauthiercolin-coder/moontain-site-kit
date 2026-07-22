@@ -43,7 +43,7 @@ export function SectionEditorForm({
     case 'featured':
       return <FeaturedEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
     case 'cta':
-      return <CtaEditor content={(content as never) ?? {}} onChange={onChange as never} />
+      return <CtaEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
     case 'contact':
       return <ContactEditor content={(content as never) ?? {}} onChange={onChange as never} />
     case 'video':

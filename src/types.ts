@@ -119,6 +119,7 @@ export interface CtaContent {
   title?: string
   text?: string
   button?: string
+  image?: string
 }
 
 export interface ContactContent {
