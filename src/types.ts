@@ -30,6 +30,7 @@ export type SectionType =
   | 'rooms'
   | 'deals'
   | 'booking'
+  | 'properties'
 
 export interface SectionInstance<T = unknown> {
   id: string
@@ -215,6 +216,20 @@ export interface BookingContent {
   image?: string
 }
 
+/** Bien immobilier (template agence immobilière) : carte avec statut, prix,
+ * localisation et caractéristiques chiffrées. */
+export interface PropertyItem {
+  title?: string
+  image?: string
+  location?: string
+  price?: string
+  status?: string       // ex. « À vendre », « Vendu », « Sous offre »
+  beds?: string         // ex. « 4 chambres »
+  baths?: string        // ex. « 3 salles de bain »
+  surface?: string      // ex. « 240 m² »
+  description?: string
+}
+
 export interface RepeatableContent<T> {
   items: T[]
 }
@@ -238,6 +253,7 @@ export type SectionContent =
   | RepeatableContent<GalleryImageItem>
   | RepeatableContent<RoomItem>
   | RepeatableContent<DealItem>
+  | RepeatableContent<PropertyItem>
   | CtaContent
   | ContactContent
   | VideoContent

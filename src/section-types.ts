@@ -253,6 +253,26 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'booking', label: 'Réservation (formulaire)', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: '', image: '' },
   },
+  properties: {
+    key: 'properties', label: 'Biens immobiliers', kind: 'repeatable',
+    // Deux mises en page : grille de cartes (listing) ou grandes lignes.
+    variants: [
+      { key: 'grid', label: 'Grille de cartes' },
+      { key: 'rows', label: 'Grandes lignes détaillées' },
+    ],
+    fields: [
+      { key: 'title', label: 'Titre du bien', kind: 'text' },
+      { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'location', label: 'Localisation', kind: 'text' },
+      { key: 'price', label: 'Prix', kind: 'text' },
+      { key: 'status', label: 'Statut (À vendre, Vendu…)', kind: 'text' },
+      { key: 'beds', label: 'Chambres (ex. 4 chambres)', kind: 'text' },
+      { key: 'baths', label: 'Salles de bain (ex. 3)', kind: 'text' },
+      { key: 'surface', label: 'Surface (ex. 240 m²)', kind: 'text' },
+      { key: 'description', label: 'Description', kind: 'textarea' },
+    ],
+    defaultContent: { items: [] },
+  },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
