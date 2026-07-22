@@ -215,7 +215,13 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { eyebrow: '', title: '', text: '', image: '' },
   },
   rooms: {
-    key: 'rooms', label: 'Chambres', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    key: 'rooms', label: 'Chambres', kind: 'repeatable',
+    // Deux mises en page : grille compacte (accueil) ou grandes lignes
+    // détaillées (page « Nos chambres »). Voir hoteru/sections/Rooms.tsx.
+    variants: [
+      { key: 'rows', label: 'Grandes lignes détaillées' },
+      { key: 'grid', label: 'Grille compacte' },
+    ],
     fields: [
       { key: 'name', label: 'Nom de la chambre', kind: 'text' },
       { key: 'image', label: 'Image', kind: 'image' },
