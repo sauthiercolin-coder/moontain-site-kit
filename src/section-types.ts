@@ -272,6 +272,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'baths', label: 'Salles de bain (ex. 3)', kind: 'text' },
       { key: 'surface', label: 'Surface (ex. 240 m²)', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
+      { key: 'slug', label: 'Page détail (URL, ex. villa-contemporaine)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },

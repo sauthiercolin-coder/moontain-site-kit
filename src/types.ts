@@ -228,6 +228,7 @@ export interface PropertyItem {
   baths?: string        // ex. « 3 salles de bain »
   surface?: string      // ex. « 240 m² »
   description?: string
+  slug?: string         // page détail du bien (ex. 'villa-contemporaine')
 }
 
 export interface RepeatableContent<T> {
