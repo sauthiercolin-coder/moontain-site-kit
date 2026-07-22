@@ -255,10 +255,12 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   },
   properties: {
     key: 'properties', label: 'Biens immobiliers', kind: 'repeatable',
-    // Deux mises en page : grille de cartes (listing) ou grandes lignes.
+    // Trois mises en page : grille de cartes (listing), grandes lignes, ou
+    // page détail complète (un seul bien, style « single project »).
     variants: [
       { key: 'grid', label: 'Grille de cartes' },
       { key: 'rows', label: 'Grandes lignes détaillées' },
+      { key: 'detail', label: 'Page détail (un bien)' },
     ],
     fields: [
       { key: 'title', label: 'Titre du bien', kind: 'text' },
