@@ -214,6 +214,39 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'story', label: 'Histoire (image + texte)', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { eyebrow: '', title: '', text: '', image: '' },
   },
+  rooms: {
+    key: 'rooms', label: 'Chambres', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [
+      { key: 'name', label: 'Nom de la chambre', kind: 'text' },
+      { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'description', label: 'Description', kind: 'textarea' },
+      { key: 'price', label: 'Prix', kind: 'text' },
+      { key: 'period', label: 'Période (ex. /nuit)', kind: 'text' },
+      { key: 'beds', label: 'Lits (ex. 2 lits)', kind: 'text' },
+      { key: 'baths', label: 'Salles de bain (ex. 2)', kind: 'text' },
+      { key: 'persons', label: 'Personnes (ex. 4)', kind: 'text' },
+      { key: 'size', label: 'Surface (ex. 60 m²)', kind: 'text' },
+      { key: 'features', label: 'Équipements (une ligne = un équipement)', kind: 'textarea' },
+    ],
+    defaultContent: { items: [] },
+  },
+  deals: {
+    key: 'deals', label: 'Offres / forfaits', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [
+      { key: 'name', label: 'Nom de l’offre', kind: 'text' },
+      { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'price', label: 'Prix', kind: 'text' },
+      { key: 'rating', label: 'Note (ex. 4.9)', kind: 'text' },
+      { key: 'reviews', label: 'Avis (ex. 8 avis)', kind: 'text' },
+      { key: 'expiry', label: 'Expiration (ex. Expire le 30/12)', kind: 'text' },
+      { key: 'discount', label: 'Remise (ex. -20 %)', kind: 'text' },
+    ],
+    defaultContent: { items: [] },
+  },
+  booking: {
+    key: 'booking', label: 'Réservation (formulaire)', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: '', image: '' },
+  },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
@@ -261,6 +294,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     eyebrow: z.string().optional(),
     title: z.string().optional(),
     text: z.string().optional(),
+    image: z.string().optional(),
+  }),
+  booking: z.object({
+    title: z.string().optional(),
     image: z.string().optional(),
   }),
 }

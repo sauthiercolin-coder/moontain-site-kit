@@ -27,6 +27,9 @@ export type SectionType =
   | 'video'
   | 'map'
   | 'story'
+  | 'rooms'
+  | 'deals'
+  | 'booking'
 
 export interface SectionInstance<T = unknown> {
   id: string
@@ -179,6 +182,39 @@ export interface StoryContent {
   image?: string
 }
 
+/** Chambre / hébergement (template hôtelier Hoteru) : carte riche avec
+ * équipements chiffrés et prix. */
+export interface RoomItem {
+  name?: string
+  image?: string
+  description?: string
+  price?: string
+  period?: string       // ex. « /nuit »
+  beds?: string         // ex. « 2 lits »
+  baths?: string        // ex. « 2 salles de bain »
+  persons?: string      // ex. « 4 personnes »
+  size?: string         // ex. « 60 m² »
+  /** Une ligne = un équipement (Wifi, TV, chauffage…), découpée à l'affichage. */
+  features?: string
+}
+
+/** Offre / forfait promotionnel (section « Meilleures offres »). */
+export interface DealItem {
+  name?: string
+  image?: string
+  price?: string
+  rating?: string       // ex. « 4.9 »
+  reviews?: string      // ex. « 8 avis »
+  expiry?: string       // ex. « Expire le 30/12 »
+  discount?: string     // ex. « -20 % »
+}
+
+/** Bloc « Vérifier les disponibilités » — formulaire de réservation. */
+export interface BookingContent {
+  title?: string
+  image?: string
+}
+
 export interface RepeatableContent<T> {
   items: T[]
 }
@@ -200,8 +236,11 @@ export type SectionContent =
   | RepeatableContent<LogoItem>
   | RepeatableContent<PricingPlanItem>
   | RepeatableContent<GalleryImageItem>
+  | RepeatableContent<RoomItem>
+  | RepeatableContent<DealItem>
   | CtaContent
   | ContactContent
   | VideoContent
   | MapContent
   | StoryContent
+  | BookingContent
