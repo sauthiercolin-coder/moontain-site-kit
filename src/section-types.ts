@@ -44,7 +44,7 @@ const DEFAULT_VARIANT: SectionVariant[] = [{ key: 'default', label: 'Standard' }
 // existantes (voir migration 115_migrate_site_content.sql côté moontain-gallerie).
 export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   hero: {
-    key: 'hero', label: 'Accueil', kind: 'singleton', variants: DEFAULT_VARIANT,
+    key: 'hero', label: 'Bannière', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { headline: '', subtext: '', images: [] },
   },
   featured: {
@@ -303,7 +303,9 @@ const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
   ]))).passthrough()
 
 const repeatableContentSchema = (fields: RepeatableFieldConfig[]) =>
-  z.object({ items: z.array(repeatableItemSchema(fields)).default([]) })
+  // `ratio` : format d'image commun à la section (recadrage object-fit côté
+  // rendu, voir mapSections dans moontain-sites). '' / 'auto' = format d'origine.
+  z.object({ items: z.array(repeatableItemSchema(fields)).default([]), ratio: z.string().optional() })
 
 const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   hero: z.object({
@@ -314,11 +316,13 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     kicker: z.string().optional(),
     cta: z.string().optional(),
     cta2: z.string().optional(),
+    ratio: z.string().optional(),
   }),
   featured: z.object({
     name: z.string().optional(),
     location: z.string().optional(),
     image: z.string().optional(),
+    ratio: z.string().optional(),
   }),
   cta: z.object({
     title: z.string().optional(),
@@ -333,6 +337,7 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     title: z.string().optional(),
     videoUrl: z.string().optional(),
     poster: z.string().optional(),
+    ratio: z.string().optional(),
   }),
   map: z.object({
     title: z.string().optional(),
@@ -343,10 +348,12 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     title: z.string().optional(),
     text: z.string().optional(),
     image: z.string().optional(),
+    ratio: z.string().optional(),
   }),
   booking: z.object({
     title: z.string().optional(),
     image: z.string().optional(),
+    ratio: z.string().optional(),
   }),
 }
 

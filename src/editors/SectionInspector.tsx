@@ -100,6 +100,17 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
   ],
 }
 
+// Formats d'image proposés (recadrage uniforme d'une section, non destructif).
+const IMAGE_RATIOS: { value: string; label: string }[] = [
+  { value: 'auto', label: "Automatique (format d'origine)" },
+  { value: '1:1', label: 'Carré · 1:1' },
+  { value: '4:3', label: 'Paysage · 4:3' },
+  { value: '3:2', label: 'Paysage · 3:2' },
+  { value: '16:9', label: 'Large · 16:9' },
+  { value: '2:3', label: 'Portrait · 2:3' },
+  { value: '3:4', label: 'Portrait · 3:4' },
+]
+
 const REPEAT_NOUN: Partial<Record<SectionType, string>> = {
   values: 'une valeur', features: 'un atout', process: 'une étape', services: 'un service',
   testimonials: 'un avis', projects: 'une réalisation', beforeAfter: 'une comparaison',
@@ -163,6 +174,8 @@ function SingletonInspector({ type, content, onChange, ImagePicker }: {
 }) {
   const groups = SINGLETON_SPECS[type] ?? [{ title: 'Contenu', fields: Object.keys(content ?? {}).map(k => ({ key: k, label: k, kind: 'text' as Kind })) }]
   const set = (key: string, v: any) => onChange({ ...content, [key]: v })
+  const hasImages = groups.some(g => g.fields.some(f => f.kind === 'image' || f.kind === 'imagelist'))
+  const ratio = (content.ratio as string | undefined) ?? 'auto'
   return (
     <div className="stack" style={{ gap: 0 }}>
       {groups.map(g => (
@@ -173,6 +186,15 @@ function SingletonInspector({ type, content, onChange, ImagePicker }: {
           </div>
         </details>
       ))}
+      {hasImages && (
+        <div className="insp-field" style={{ marginTop: 4 }}>
+          <label>Format des images</label>
+          <p className="insp-help">Recadrage uniforme des images de cette section (l’original n’est pas modifié).</p>
+          <select value={ratio} onChange={e => onChange({ ...content, ratio: e.target.value })}>
+            {IMAGE_RATIOS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+          </select>
+        </div>
+      )}
     </div>
   )
 }
@@ -184,7 +206,10 @@ function RepeatableInspector({ type, content, onChange, ImagePicker }: {
   if (def.kind !== 'repeatable') return null
   const fields = def.fields
   const items: Obj[] = Array.isArray(content?.items) ? content.items : []
-  const commit = (next: Obj[]) => onChange({ items: next })
+  const commit = (next: Obj[]) => onChange({ ...content, items: next })
+  const hasImages = fields.some(f => f.kind === 'image')
+  const ratio = (content.ratio as string | undefined) ?? 'auto'
+  const setRatio = (r: string) => onChange({ ...content, items, ratio: r })
 
   const noun = REPEAT_NOUN[type] ?? 'un élément'
   const nounCap = noun.replace(/^(un|une)\s+/, '').replace(/^./, c => c.toUpperCase())
@@ -228,6 +253,15 @@ function RepeatableInspector({ type, content, onChange, ImagePicker }: {
         </details>
       ))}
       <button type="button" className="insp-add" style={{ marginTop: 4 }} onClick={() => commit([...items, {}])}>+ Ajouter {noun}</button>
+      {hasImages && (
+        <div className="insp-field" style={{ marginTop: 16 }}>
+          <label>Format des images</label>
+          <p className="insp-help">Toutes les images de cette section adoptent ce format (l’original n’est pas modifié).</p>
+          <select value={ratio} onChange={e => setRatio(e.target.value)}>
+            {IMAGE_RATIOS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+          </select>
+        </div>
+      )}
     </div>
   )
 }
