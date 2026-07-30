@@ -315,6 +315,12 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleMembership', label: 'Module — Adhésion', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Devenir membre', intro: '' },
   },
+  // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
+  // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
+  form: {
+    key: 'form', label: 'Formulaire', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { formId: '', title: '', intro: '' },
+  },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
@@ -379,6 +385,7 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   moduleTickets: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   moduleGiftcard: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   moduleMembership: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
 
 /** Schéma de validation du contenu d'une section, pour vérifier côté serveur

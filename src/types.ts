@@ -36,6 +36,7 @@ export type SectionType =
   | 'moduleTickets'
   | 'moduleGiftcard'
   | 'moduleMembership'
+  | 'form'
 
 export interface SectionInstance<T = unknown> {
   id: string

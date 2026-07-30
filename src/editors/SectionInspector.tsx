@@ -41,6 +41,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleTickets: 'La billetterie (achat de billets), intégrée dans la page.',
   moduleGiftcard: "L'achat de bon cadeau, intégré dans la page.",
   moduleMembership: "L'adhésion (abonnement), intégrée dans la page.",
+  form: 'Un formulaire (choisi parmi ceux du CMS) intégré dans la page.',
 }
 
 // En-tête commun aux blocs « module » (titre + texte d'intro au-dessus du widget).
@@ -115,6 +116,9 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
   moduleTickets: MODULE_HEADER_SPEC,
   moduleGiftcard: MODULE_HEADER_SPEC,
   moduleMembership: MODULE_HEADER_SPEC,
+  // Le choix du formulaire (formId) est géré par un sélecteur dédié côté CMS ;
+  // ici on ne montre que l'en-tête optionnel en repli.
+  form: MODULE_HEADER_SPEC,
 }
 
 // Formats d'image proposés (recadrage uniforme d'une section, non destructif).
