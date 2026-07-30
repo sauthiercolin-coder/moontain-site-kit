@@ -295,6 +295,26 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     ],
     defaultContent: { items: [] },
   },
+
+  // ── Blocs « module » : intègrent un widget interactif (réservation,
+  // billetterie…) dans la page. Contenu = simple en-tête (titre + intro) affiché
+  // au-dessus du widget ; le widget lui-même est rendu par moontain-sites.
+  moduleBooking: {
+    key: 'moduleBooking', label: 'Module — Réservation', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Réserver', intro: '' },
+  },
+  moduleTickets: {
+    key: 'moduleTickets', label: 'Module — Billetterie', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Billetterie', intro: '' },
+  },
+  moduleGiftcard: {
+    key: 'moduleGiftcard', label: 'Module — Bon cadeau', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Offrir un bon cadeau', intro: '' },
+  },
+  moduleMembership: {
+    key: 'moduleMembership', label: 'Module — Adhésion', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Devenir membre', intro: '' },
+  },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
@@ -355,6 +375,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     image: z.string().optional(),
     ratio: z.string().optional(),
   }),
+  moduleBooking: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  moduleTickets: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  moduleGiftcard: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  moduleMembership: z.object({ title: z.string().optional(), intro: z.string().optional() }),
 }
 
 /** Schéma de validation du contenu d'une section, pour vérifier côté serveur

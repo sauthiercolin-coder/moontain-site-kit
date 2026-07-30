@@ -37,7 +37,19 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   logos: 'Les logos partenaires.',
   pricing: 'Les offres et tarifs.',
   gallery: "Une galerie d'images.",
+  moduleBooking: 'Le formulaire de réservation, intégré dans la page.',
+  moduleTickets: 'La billetterie (achat de billets), intégrée dans la page.',
+  moduleGiftcard: "L'achat de bon cadeau, intégré dans la page.",
+  moduleMembership: "L'adhésion (abonnement), intégrée dans la page.",
 }
+
+// En-tête commun aux blocs « module » (titre + texte d'intro au-dessus du widget).
+const MODULE_HEADER_SPEC: GroupSpec[] = [
+  { title: 'En-tête du bloc', fields: [
+    { key: 'title', label: 'Titre', help: 'Affiché au-dessus du module.', kind: 'text' },
+    { key: 'intro', label: "Texte d'introduction", help: 'Optionnel.', kind: 'textarea' },
+  ] },
+]
 
 const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
   hero: [
@@ -98,6 +110,11 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
       { key: 'image', label: 'Image', kind: 'image' },
     ] },
   ],
+  // Blocs « module » : simple en-tête (titre + intro) au-dessus du widget.
+  moduleBooking: MODULE_HEADER_SPEC,
+  moduleTickets: MODULE_HEADER_SPEC,
+  moduleGiftcard: MODULE_HEADER_SPEC,
+  moduleMembership: MODULE_HEADER_SPEC,
 }
 
 // Formats d'image proposés (recadrage uniforme d'une section, non destructif).

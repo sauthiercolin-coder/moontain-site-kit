@@ -32,6 +32,10 @@ export type SectionType =
   | 'booking'
   | 'properties'
   | 'wines'
+  | 'moduleBooking'
+  | 'moduleTickets'
+  | 'moduleGiftcard'
+  | 'moduleMembership'
 
 export interface SectionInstance<T = unknown> {
   id: string
