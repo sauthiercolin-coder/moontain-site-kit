@@ -301,6 +301,9 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   // au-dessus du widget ; le widget lui-même est rendu par moontain-sites.
   moduleBooking: {
     key: 'moduleBooking', label: 'Module — Réservation', kind: 'singleton', variants: DEFAULT_VARIANT,
+    // Les options d'affichage restent absentes du contenu par défaut : côté
+    // rendu, « non renseigné » vaut « affiché ». Un bloc créé aujourd'hui et un
+    // bloc créé avant l'ajout de ces réglages se comportent donc pareil.
     defaultContent: { title: 'Réserver', intro: '' },
   },
   moduleTickets: {
@@ -314,6 +317,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   moduleMembership: {
     key: 'moduleMembership', label: 'Module — Adhésion', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Devenir membre', intro: '' },
+  },
+  moduleReviews: {
+    key: 'moduleReviews', label: 'Module — Avis', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Ils nous ont fait confiance', intro: '' },
   },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
@@ -381,10 +388,22 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     image: z.string().optional(),
     ratio: z.string().optional(),
   }),
-  moduleBooking: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  moduleBooking: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+    // Réglages d'affichage du widget. Absent = affiché / demandé.
+    showPrice: z.boolean().optional(),
+    showDuration: z.boolean().optional(),
+    showDeposit: z.boolean().optional(),
+    showLive: z.boolean().optional(),
+    showPolicy: z.boolean().optional(),
+    askPhone: z.boolean().optional(),
+    askNote: z.boolean().optional(),
+  }),
   moduleTickets: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   moduleGiftcard: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   moduleMembership: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  moduleReviews: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
 

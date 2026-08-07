@@ -36,6 +36,7 @@ export type SectionType =
   | 'moduleTickets'
   | 'moduleGiftcard'
   | 'moduleMembership'
+  | 'moduleReviews'
   | 'form'
 
 export interface SectionInstance<T = unknown> {

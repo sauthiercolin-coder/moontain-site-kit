@@ -12,7 +12,15 @@ import type { ImagePickerComponent } from './types'
 
 type Obj = Record<string, any>
 type Kind = 'text' | 'textarea' | 'image' | 'date' | 'boolean' | 'imagelist'
-interface FieldSpec { key: string; label: string; help?: string; kind: Kind; placeholder?: string }
+interface FieldSpec {
+  key: string; label: string; help?: string; kind: Kind; placeholder?: string
+  /**
+   * Cases à cocher uniquement : état affiché tant que le contenu ne dit rien.
+   * Sert aux options « affiché par défaut » — sans lui, une section créée avant
+   * l'ajout de l'option apparaîtrait décochée alors que le site l'affiche.
+   */
+  defaultOn?: boolean
+}
 interface GroupSpec { title: string; fields: FieldSpec[] }
 
 export const SECTION_HELP: Partial<Record<SectionType, string>> = {
@@ -41,6 +49,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleTickets: 'La billetterie (achat de billets), intégrée dans la page.',
   moduleGiftcard: "L'achat de bon cadeau, intégré dans la page.",
   moduleMembership: "L'adhésion (abonnement), intégrée dans la page.",
+  moduleReviews: 'Le mur d\'avis en direct (avis approuvés), intégré dans la page.',
   form: 'Un formulaire (choisi parmi ceux du CMS) intégré dans la page.',
 }
 
@@ -112,10 +121,27 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
     ] },
   ],
   // Blocs « module » : simple en-tête (titre + intro) au-dessus du widget.
-  moduleBooking: MODULE_HEADER_SPEC,
+  // Le bloc Réservation expose en plus ce que le widget affiche ou demande.
+  // Tout est optionnel et coché par défaut : ne rien toucher laisse le widget
+  // exactement comme avant l'ajout de ces réglages.
+  moduleBooking: [
+    ...MODULE_HEADER_SPEC,
+    { title: 'Ce que le widget affiche', fields: [
+      { key: 'showPrice', label: 'Les tarifs', help: 'Décochez si vos prix sont sur devis.', kind: 'boolean', defaultOn: true },
+      { key: 'showDuration', label: 'La durée de la prestation', kind: 'boolean', defaultOn: true },
+      { key: 'showDeposit', label: "Le montant de l'acompte", kind: 'boolean', defaultOn: true },
+      { key: 'showLive', label: '« Disponibilités en direct »', help: 'Le petit voyant au-dessus du calendrier.', kind: 'boolean', defaultOn: true },
+      { key: 'showPolicy', label: 'Les conditions de modification', help: '« Déplaçable une fois, jusqu\'à 48 h avant. »', kind: 'boolean', defaultOn: true },
+    ] },
+    { title: 'Ce que le widget demande', fields: [
+      { key: 'askPhone', label: 'Le téléphone du visiteur', help: 'Champ facultatif pour lui.', kind: 'boolean', defaultOn: true },
+      { key: 'askNote', label: 'Un message libre', kind: 'boolean', defaultOn: true },
+    ] },
+  ],
   moduleTickets: MODULE_HEADER_SPEC,
   moduleGiftcard: MODULE_HEADER_SPEC,
   moduleMembership: MODULE_HEADER_SPEC,
+  moduleReviews: MODULE_HEADER_SPEC,
   // Le choix du formulaire (formId) est géré par un sélecteur dédié côté CMS ;
   // ici on ne montre que l'en-tête optionnel en repli.
   form: MODULE_HEADER_SPEC,
@@ -143,12 +169,13 @@ const Caret = () => (
   <svg className="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
 )
 
-function FieldInput({ kind, value, placeholder, onChange, ImagePicker }: {
-  kind: Kind; value: any; placeholder?: string; onChange: (v: any) => void; ImagePicker?: ImagePickerComponent
+function FieldInput({ kind, value, placeholder, defaultOn, onChange, ImagePicker }: {
+  kind: Kind; value: any; placeholder?: string; defaultOn?: boolean
+  onChange: (v: any) => void; ImagePicker?: ImagePickerComponent
 }) {
   if (kind === 'textarea') return <textarea rows={3} value={value ?? ''} placeholder={placeholder} onChange={e => onChange(e.target.value)} />
   if (kind === 'boolean') return (
-    <label className="insp-check"><input type="checkbox" checked={!!value} onChange={e => onChange(e.target.checked)} /> Oui</label>
+    <label className="insp-check"><input type="checkbox" checked={value ?? defaultOn ?? false} onChange={e => onChange(e.target.checked)} /> Oui</label>
   )
   if (kind === 'image') return ImagePicker
     ? <ImagePicker value={value} onChange={onChange} />
@@ -164,7 +191,7 @@ function Field({ spec, value, onChange, ImagePicker }: {
     <div className="insp-field">
       <label>{spec.label}</label>
       {spec.help && <p className="insp-help">{spec.help}</p>}
-      <FieldInput kind={spec.kind} value={value} placeholder={spec.placeholder} onChange={onChange} ImagePicker={ImagePicker} />
+      <FieldInput kind={spec.kind} value={value} placeholder={spec.placeholder} defaultOn={spec.defaultOn} onChange={onChange} ImagePicker={ImagePicker} />
     </div>
   )
 }
