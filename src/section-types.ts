@@ -73,11 +73,13 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   },
   features: {
     key: 'features', label: 'Pourquoi nous', kind: 'repeatable',
-    variants: [{ key: 'default', label: 'Cartes' }, { key: 'split', label: 'Image + liste numérotée' }, { key: 'columns', label: 'Grille 2 colonnes à filets' }],
+    variants: [{ key: 'default', label: 'Cartes' }, { key: 'split', label: 'Image + liste numérotée' }, { key: 'columns', label: 'Grille 2 colonnes à filets' }, { key: 'editorial', label: 'Navigation à images (survol)' }],
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
-      { key: 'description', label: 'Description', kind: 'textarea' },
-      { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'description', label: 'Description / sous-titre', kind: 'textarea' },
+      { key: 'image', label: 'Image (fond au survol en variante Navigation)', kind: 'image' },
+      { key: 'eyebrow', label: 'Numéro (ex. 01)', kind: 'text' },
+      { key: 'href', label: 'Lien (ex. /galerie/collections)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },

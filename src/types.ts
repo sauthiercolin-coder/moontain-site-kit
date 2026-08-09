@@ -99,7 +99,10 @@ export interface ValueItem {
 export interface FeatureItem {
   title?: string
   description?: string
-  image?: string   // Aurora
+  image?: string   // Aurora ; variante « editorial » : image de fond au survol
+  eyebrow?: string // numéro affiché (ex. « 01 »)
+  sub?: string     // sous-titre court (repli sur description)
+  href?: string    // lien de la carte / rangée de navigation
 }
 
 export interface ProcessItem {
