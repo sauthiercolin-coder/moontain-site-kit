@@ -27,6 +27,9 @@ export type SectionType =
   | 'video'
   | 'map'
   | 'story'
+  | 'manifesto'
+  | 'marquee'
+  | 'availability'
   | 'rooms'
   | 'deals'
   | 'booking'
@@ -52,6 +55,13 @@ export interface SectionInstance<T = unknown> {
   content: T
 }
 
+export interface HeroGridItem {
+  image?: string
+  title?: string
+  category?: string
+  href?: string
+}
+
 export interface HeroContent {
   headline?: string
   subtext?: string
@@ -60,6 +70,11 @@ export interface HeroContent {
   kicker?: string      // Aurora : accroche courte au-dessus du titre
   cta?: string         // Aurora : libellé du bouton principal
   cta2?: string        // Aurora : libellé du bouton secondaire
+  subline?: string     // ligne courte sous le titre (variante éditoriale)
+  ctaHref?: string
+  grid?: HeroGridItem[]   // variante « grid » : mosaïque de projets sous le titre
+  footerLeft?: string     // rangée bordée basse (gauche)
+  footerRight?: string    // rangée bordée basse (droite)
 }
 
 export interface FeaturedContent {
@@ -131,6 +146,19 @@ export interface CtaContent {
   text?: string
   button?: string
   image?: string
+  eyebrow?: string        // variante split : accroche au-dessus (avec filet)
+  emphasis?: string       // fin de titre mise en avant (cuivre)
+  buttonHref?: string
+  button2?: string        // variante split : second bouton
+  button2Href?: string
+}
+
+/** Bandeau de disponibilité : pastille + phrase (avec fragment mis en avant) + lien. */
+export interface AvailabilityContent {
+  text?: string
+  highlight?: string
+  linkLabel?: string
+  linkHref?: string
 }
 
 export interface ContactContent {
@@ -188,6 +216,24 @@ export interface StoryContent {
   title?: string
   text?: string
   image?: string
+}
+
+/** Manifeste : bloc éditorial deux colonnes séparées d'un filet — accroche +
+ * grande déclaration (avec un mot d'emphase optionnel) + signature à gauche,
+ * paragraphes + lien à droite. */
+export interface ManifestoContent {
+  eyebrow?: string
+  statement?: string
+  emphasis?: string       // mot/fin de phrase mis en avant (cuivre, italique)
+  signature?: string
+  body?: string           // paragraphes (une ligne vide = nouveau paragraphe)
+  linkLabel?: string
+  linkHref?: string
+}
+
+/** Bandeau défilant : suite de libellés répétés en continu. */
+export interface MarqueeItem {
+  label?: string
 }
 
 /** Chambre / hébergement (template hôtelier Hoteru) : carte riche avec
