@@ -460,13 +460,27 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
 
+// Style de bloc (panneau CMS « Fond/Espacement/Alignement/Coins arrondis »,
+// voir mapSections dans moontain-sites) : transversal à tous les types de
+// section, donc ajouté une seule fois ici plutôt que dans chaque schéma.
+const blockStyleSchema = z.object({
+  bg: z.string().optional(),
+  pad: z.string().optional(),
+  radius: z.boolean().optional(),
+  align: z.string().optional(),
+}).optional()
+
 /** Schéma de validation du contenu d'une section, pour vérifier côté serveur
  * ce qui est écrit en base avant de l'accepter (voir server actions
- * updateSiteSectionContent dans moontain-gallerie/espace-clients). */
+ * updateSiteSectionContent dans moontain-gallerie/espace-clients).
+ *
+ * Un objet zod sans .passthrough() retire silencieusement (sans erreur) les
+ * champs qu'il ne déclare pas : _style disparaissait donc à chaque
+ * enregistrement, alors que le panneau de style l'écrivait bien. */
 export function sectionContentSchema(type: SectionType): z.ZodTypeAny {
   const def = SECTION_TYPES[type]
-  if (def.kind === 'repeatable') return repeatableContentSchema(def.fields)
-  return singletonSchemas[type] ?? z.record(z.unknown())
+  const base = def.kind === 'repeatable' ? repeatableContentSchema(def.fields) : (singletonSchemas[type] ?? z.record(z.unknown()))
+  return base instanceof z.ZodObject ? base.extend({ _style: blockStyleSchema }) : base
 }
 
 /** Variante effective d'une instance de section — retombe sur la 1re
