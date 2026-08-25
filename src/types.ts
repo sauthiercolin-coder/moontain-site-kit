@@ -67,6 +67,7 @@ export interface HeroContent {
   subtext?: string
   images?: string[]   // LeafLife : plusieurs visuels (carrousel/collage)
   image?: string       // Aurora : un seul visuel principal
+  imageAlt?: string    // texte alternatif de la 1re image (accessibilité) — l'image n'est pas décorative
   kicker?: string      // Aurora : accroche courte au-dessus du titre
   cta?: string         // Aurora : libellé du bouton principal
   cta2?: string        // Aurora : libellé du bouton secondaire
@@ -219,6 +220,7 @@ export interface StoryContent {
   title?: string
   text?: string
   image?: string
+  imageAlt?: string    // texte alternatif de l'image (accessibilité) — l'image n'est pas décorative
 }
 
 /** Manifeste : bloc éditorial deux colonnes séparées d'un filet — accroche +
