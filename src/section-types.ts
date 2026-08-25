@@ -130,6 +130,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'location', label: 'Lieu', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
       { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'slug', label: 'Lien vers la fiche projet (slug, optionnel)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },

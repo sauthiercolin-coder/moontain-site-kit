@@ -123,6 +123,9 @@ export interface ProjectItem {
   description?: string
   image?: string
   images?: string[]
+  /** Slug de la fiche projet réelle, si cette réalisation en a une — sans lui,
+   * la carte ne peut pointer que vers la liste générale des projets. */
+  slug?: string
 }
 
 export interface TestimonialItem {
