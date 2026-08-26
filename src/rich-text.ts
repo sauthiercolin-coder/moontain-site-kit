@@ -23,6 +23,21 @@ import { z } from 'zod'
 // rendu est construit balise par balise depuis une structure validée, il n'y a
 // pas de HTML à analyser, donc pas de surface d'injection.
 
+/** Couleurs applicables à un fragment.
+ *
+ *  Volontairement symboliques, jamais des codes couleur : c'est le gabarit qui
+ *  décide à quoi ressemble « l'accent ». Un client qui change la couleur de
+ *  son site voit son texte suivre, et un texte écrit sur un gabarit puis
+ *  déplacé sur un autre reste cohérent — ce qu'un `#DF674C` en base ne
+ *  permettrait pas. C'est aussi ce qui évite de stocker du style arbitraire. */
+export type RichCouleur = 'accent' | 'fort' | 'sourdine'
+
+export const RICH_COULEURS: { valeur: RichCouleur; label: string }[] = [
+  { valeur: 'accent', label: 'Couleur du site' },
+  { valeur: 'fort', label: 'Renforcé' },
+  { valeur: 'sourdine', label: 'Atténué' },
+]
+
 /** Fragment de texte homogène : même mise en forme du début à la fin. */
 export interface RichRun {
   text: string
@@ -30,6 +45,7 @@ export interface RichRun {
   italic?: boolean
   /** Lien ; restreint aux schémas sûrs (voir HREF_AUTORISE). */
   href?: string
+  couleur?: RichCouleur
 }
 
 /** Bloc de premier niveau : un paragraphe ou un titre de niveau 1 à 4. */
@@ -62,6 +78,7 @@ const richRunSchema = z.object({
   bold: z.boolean().optional(),
   italic: z.boolean().optional(),
   href: z.string().max(500).refine(lienAutorise, 'Lien non autorisé.').optional(),
+  couleur: z.enum(['accent', 'fort', 'sourdine']).optional(),
 })
 
 const richBlockSchema = z.object({
