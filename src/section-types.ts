@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { SectionType } from './types'
+import { CHAMPS_RICHES, cleRiche, richTextSchema } from './rich-text'
 
 export interface RepeatableFieldConfig {
   key: string
@@ -480,8 +481,17 @@ const blockStyleSchema = z.object({
 export function sectionContentSchema(type: SectionType): z.ZodTypeAny {
   const def = SECTION_TYPES[type]
   const base = def.kind === 'repeatable' ? repeatableContentSchema(def.fields) : (singletonSchemas[type] ?? z.record(z.unknown()))
-  return base instanceof z.ZodObject ? base.extend({ _style: blockStyleSchema }) : base
+  // Mêmes raisons pour les clés riches (`textRich`…) que pour _style : sans
+  // déclaration ici, elles seraient retirées à l'enregistrement. Les éléments
+  // répétables (items[]) sont déjà en .passthrough(), ils n'en ont pas besoin.
+  return base instanceof z.ZodObject
+    ? base.extend({ _style: blockStyleSchema, ...CLES_RICHES_SCHEMA })
+    : base
 }
+
+const CLES_RICHES_SCHEMA = Object.fromEntries(
+  CHAMPS_RICHES.map(champ => [cleRiche(champ), richTextSchema.optional()]),
+)
 
 /** Variante effective d'une instance de section — retombe sur la 1re
  * variante déclarée si absente ou inconnue. */
