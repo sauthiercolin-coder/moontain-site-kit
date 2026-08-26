@@ -32,8 +32,10 @@ import { z } from 'zod'
  *  permettrait pas. C'est aussi ce qui évite de stocker du style arbitraire. */
 export type RichCouleur = 'accent' | 'fort' | 'sourdine'
 
+// Libellés courts : ils vivent dans des boutons côte à côte, sous un intitulé
+// qui dit déjà « Couleur » ou « Surlignage ».
 export const RICH_COULEURS: { valeur: RichCouleur; label: string }[] = [
-  { valeur: 'accent', label: 'Couleur du site' },
+  { valeur: 'accent', label: 'Site' },
   { valeur: 'fort', label: 'Renforcé' },
   { valeur: 'sourdine', label: 'Atténué' },
 ]
