@@ -63,6 +63,16 @@ export const RICH_CASSES: { valeur: RichCasse; label: string }[] = [
   { valeur: 'minuscules', label: 'min' },
 ]
 
+/** Espacement des lettres et interligne : symboliques eux aussi, pour que le
+ *  gabarit garde la main sur l'échelle typographique. */
+export type RichEspace = 'serre' | 'normal' | 'aere'
+
+export const RICH_ESPACES: { valeur: RichEspace; label: string }[] = [
+  { valeur: 'serre', label: 'Serré' },
+  { valeur: 'normal', label: 'Normal' },
+  { valeur: 'aere', label: 'Aéré' },
+]
+
 export type RichAlign = 'left' | 'center' | 'right' | 'justify'
 
 export const RICH_ALIGNEMENTS: { valeur: RichAlign; label: string }[] = [
@@ -85,14 +95,23 @@ export interface RichRun {
   /** Surlignage, dans la même palette symbolique que la couleur. */
   surlignage?: RichCouleur
   casse?: RichCasse
+  /** Exposant et indice : m², notes de bas de page. */
+  exposant?: boolean
+  indice?: boolean
 }
 
 /** Bloc de premier niveau : paragraphe, titre de niveau 1 à 4, ou citation. */
 export interface RichBlock {
-  type: 'paragraph' | 'heading' | 'quote'
+  /** `bullet` et `number` sont des ÉLÉMENTS de liste, pas des listes : les
+   *  blocs consécutifs de même type sont regroupés dans un <ul>/<ol> au rendu.
+   *  Garder la liste à plat évite d'imbriquer une structure dans une autre,
+   *  et laisse chaque ligne porter son alignement ou son interligne. */
+  type: 'paragraph' | 'heading' | 'quote' | 'bullet' | 'number'
   level?: 1 | 2 | 3 | 4
   align?: RichAlign
   taille?: RichTaille
+  interlettre?: RichEspace
+  interligne?: RichEspace
   runs: RichRun[]
 }
 
@@ -126,13 +145,19 @@ const richRunSchema = z.object({
   couleur: couleurSchema.optional(),
   surlignage: couleurSchema.optional(),
   casse: z.enum(['majuscules', 'minuscules', 'capitales']).optional(),
+  exposant: z.boolean().optional(),
+  indice: z.boolean().optional(),
 })
 
+const espaceSchema = z.enum(['serre', 'normal', 'aere'])
+
 const richBlockSchema = z.object({
-  type: z.enum(['paragraph', 'heading', 'quote']),
+  type: z.enum(['paragraph', 'heading', 'quote', 'bullet', 'number']),
   level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
   align: z.enum(['left', 'center', 'right', 'justify']).optional(),
   taille: z.enum(['petit', 'normal', 'grand']).optional(),
+  interlettre: espaceSchema.optional(),
+  interligne: espaceSchema.optional(),
   runs: z.array(richRunSchema).max(MAX_FRAGMENTS_BLOC),
 })
 
