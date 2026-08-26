@@ -168,7 +168,13 @@ export const richTextSchema = z.array(richBlockSchema).max(MAX_BLOCS)
  *  volontairement courte : un titre ou un libellé de bouton n'a pas à porter
  *  des paragraphes. */
 export const CHAMPS_RICHES = [
-  'text', 'body', 'description', 'intro', 'subtext', 'statement', 'excerpt', 'notes', 'bio',
+  // Corps de texte
+  'text', 'body', 'description', 'intro', 'subtext', 'statement', 'excerpt', 'notes', 'bio', 'answer',
+  // Titres et signatures — mis en forme en mode « ligne » (voir RichTexte) :
+  // pas de paragraphes ni de niveaux, mais gras, couleur, lien. Sans eux
+  // déclarés ici, `titleRich` serait retiré silencieusement à chaque
+  // enregistrement, comme l'a été `_style` avant sa correction.
+  'title', 'headline', 'subtitle', 'signature', 'name', 'address',
 ] as const
 
 /** Nom de la clé riche associée à un champ (`text` → `textRich`). */
