@@ -51,6 +51,18 @@ export const RICH_TAILLES: { valeur: RichTaille; label: string }[] = [
   { valeur: 'grand', label: 'Grand' },
 ]
 
+/** Casse d'affichage. Le texte est stocké tel qu'il a été tapé : la casse est
+ *  une présentation, appliquée au rendu. Repasser en « normal » rend donc le
+ *  texte d'origine intact — ce qu'une transformation du texte stocké aurait
+ *  définitivement perdu. */
+export type RichCasse = 'majuscules' | 'minuscules' | 'capitales'
+
+export const RICH_CASSES: { valeur: RichCasse; label: string }[] = [
+  { valeur: 'majuscules', label: 'MAJ' },
+  { valeur: 'capitales', label: 'Initiales' },
+  { valeur: 'minuscules', label: 'min' },
+]
+
 export type RichAlign = 'left' | 'center' | 'right' | 'justify'
 
 export const RICH_ALIGNEMENTS: { valeur: RichAlign; label: string }[] = [
@@ -72,6 +84,7 @@ export interface RichRun {
   couleur?: RichCouleur
   /** Surlignage, dans la même palette symbolique que la couleur. */
   surlignage?: RichCouleur
+  casse?: RichCasse
 }
 
 /** Bloc de premier niveau : paragraphe, titre de niveau 1 à 4, ou citation. */
@@ -112,6 +125,7 @@ const richRunSchema = z.object({
   href: z.string().max(500).refine(lienAutorise, 'Lien non autorisé.').optional(),
   couleur: couleurSchema.optional(),
   surlignage: couleurSchema.optional(),
+  casse: z.enum(['majuscules', 'minuscules', 'capitales']).optional(),
 })
 
 const richBlockSchema = z.object({
