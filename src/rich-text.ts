@@ -38,20 +38,46 @@ export const RICH_COULEURS: { valeur: RichCouleur; label: string }[] = [
   { valeur: 'sourdine', label: 'Atténué' },
 ]
 
+/** Taille du texte d'un bloc, relative à celle du gabarit — jamais une valeur
+ *  en pixels : « grand » n'a pas la même mesure sur un gabarit de restaurant
+ *  et sur un gabarit industriel, et c'est très bien ainsi. */
+export type RichTaille = 'petit' | 'normal' | 'grand'
+
+export const RICH_TAILLES: { valeur: RichTaille; label: string }[] = [
+  { valeur: 'petit', label: 'Petit' },
+  { valeur: 'normal', label: 'Normal' },
+  { valeur: 'grand', label: 'Grand' },
+]
+
+export type RichAlign = 'left' | 'center' | 'right' | 'justify'
+
+export const RICH_ALIGNEMENTS: { valeur: RichAlign; label: string }[] = [
+  { valeur: 'left', label: 'Gauche' },
+  { valeur: 'center', label: 'Centré' },
+  { valeur: 'right', label: 'Droite' },
+  { valeur: 'justify', label: 'Justifié' },
+]
+
 /** Fragment de texte homogène : même mise en forme du début à la fin. */
 export interface RichRun {
   text: string
   bold?: boolean
   italic?: boolean
+  underline?: boolean
+  strike?: boolean
   /** Lien ; restreint aux schémas sûrs (voir HREF_AUTORISE). */
   href?: string
   couleur?: RichCouleur
+  /** Surlignage, dans la même palette symbolique que la couleur. */
+  surlignage?: RichCouleur
 }
 
-/** Bloc de premier niveau : un paragraphe ou un titre de niveau 1 à 4. */
+/** Bloc de premier niveau : paragraphe, titre de niveau 1 à 4, ou citation. */
 export interface RichBlock {
-  type: 'paragraph' | 'heading'
+  type: 'paragraph' | 'heading' | 'quote'
   level?: 1 | 2 | 3 | 4
+  align?: RichAlign
+  taille?: RichTaille
   runs: RichRun[]
 }
 
@@ -73,17 +99,24 @@ const MAX_CARACTERES_FRAGMENT = 2000
 const MAX_FRAGMENTS_BLOC = 200
 const MAX_BLOCS = 100
 
+const couleurSchema = z.enum(['accent', 'fort', 'sourdine'])
+
 const richRunSchema = z.object({
   text: z.string().max(MAX_CARACTERES_FRAGMENT),
   bold: z.boolean().optional(),
   italic: z.boolean().optional(),
+  underline: z.boolean().optional(),
+  strike: z.boolean().optional(),
   href: z.string().max(500).refine(lienAutorise, 'Lien non autorisé.').optional(),
-  couleur: z.enum(['accent', 'fort', 'sourdine']).optional(),
+  couleur: couleurSchema.optional(),
+  surlignage: couleurSchema.optional(),
 })
 
 const richBlockSchema = z.object({
-  type: z.enum(['paragraph', 'heading']),
+  type: z.enum(['paragraph', 'heading', 'quote']),
   level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+  align: z.enum(['left', 'center', 'right', 'justify']).optional(),
+  taille: z.enum(['petit', 'normal', 'grand']).optional(),
   runs: z.array(richRunSchema).max(MAX_FRAGMENTS_BLOC),
 })
 
