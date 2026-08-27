@@ -479,6 +479,11 @@ const blockStyleSchema = z.object({
   pad: z.string().optional(),
   radius: z.boolean().optional(),
   align: z.string().optional(),
+  /** Entrée du bloc au défilement. Une INTENTION, pas une animation : le
+   *  renderer la met en scène, et un bloc sans réglage garde exactement ce que
+   *  le gabarit fait déjà — c'est ce qui permet d'ajouter ce champ sans faire
+   *  bouger un seul site existant. Voir animation.ts côté moontain-sites. */
+  anim: z.string().optional(),
   /** Déclinaisons descendantes : ce qui est réglé pour la tablette vaut aussi
    *  pour le mobile, sauf si le mobile le redit. C'est l'ordre dans lequel on
    *  regarde un site dans l'éditeur, donc celui qui surprend le moins. */
@@ -508,6 +513,7 @@ export interface BlockStyleConfig {
   pad?: string
   radius?: boolean
   align?: string
+  anim?: string
   tablette?: BlockStyleDeclinaison
   mobile?: BlockStyleDeclinaison
 }
