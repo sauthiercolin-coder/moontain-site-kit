@@ -263,15 +263,24 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   deals: {
-    key: 'deals', label: 'Offres / forfaits', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    key: 'deals', label: 'Offres / forfaits', kind: 'repeatable',
+    variants: [
+      { key: 'default', label: 'Grille de cartes' },
+      // Listes courtes côte à côte — « meilleures ventes / en promotion / mieux
+      // notés » sur une boutique. Les entrées se répartissent par la colonne
+      // qu'elles nomment ; celles qui n'en nomment aucune vont dans la première.
+      { key: 'columns', label: 'Colonnes de petites fiches' },
+    ],
     fields: [
       { key: 'name', label: 'Nom de l’offre', kind: 'text' },
       { key: 'image', label: 'Image', kind: 'image' },
       { key: 'price', label: 'Prix', kind: 'text' },
+      { key: 'oldPrice', label: 'Prix barré (optionnel)', kind: 'text' },
       { key: 'rating', label: 'Note (ex. 4.9)', kind: 'text' },
       { key: 'reviews', label: 'Avis (ex. 8 avis)', kind: 'text' },
       { key: 'expiry', label: 'Expiration (ex. Expire le 30/12)', kind: 'text' },
       { key: 'discount', label: 'Remise (ex. -20 %)', kind: 'text' },
+      { key: 'group', label: 'Colonne (variante « Colonnes »)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },
