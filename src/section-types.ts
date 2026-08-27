@@ -486,6 +486,21 @@ const blockStyleSchema = z.object({
   mobile: declinaisonSchema,
 }).optional()
 
+/** Point focal des images du bloc : chemin de l'image dans le contenu →
+ *  position, en pourcentages (« 30% 20% »).
+ *
+ *  Le « format » d'une image est un recadrage CSS (`object-fit: cover`) : le
+ *  fichier n'est jamais modifié, et le cadrage tombe au centre. Un portrait
+ *  dans un emplacement large est donc coupé au front et au menton. Le point
+ *  focal dit quelle partie de l'image doit rester visible.
+ *
+ *  Une seule clé pour tout le bloc, comme `_style`, plutôt qu'un champ jumeau
+ *  par image : les images portent des noms différents selon les blocs
+ *  (`image`, `poster`, `logo`, `items.0.image`…) et il aurait fallu les
+ *  déclarer une par une — c'est exactement l'oubli qui faisait disparaître
+ *  `titleRich` à l'enregistrement. */
+const focalSchema = z.record(z.string(), z.string()).optional()
+
 /** Réglages de style d'un bloc, tels que l'éditeur les écrit dans `_style`. */
 export interface BlockStyleDeclinaison { masque?: boolean; pad?: string; align?: string }
 export interface BlockStyleConfig {
@@ -511,7 +526,7 @@ export function sectionContentSchema(type: SectionType): z.ZodTypeAny {
   // déclaration ici, elles seraient retirées à l'enregistrement. Les éléments
   // répétables (items[]) sont déjà en .passthrough(), ils n'en ont pas besoin.
   return base instanceof z.ZodObject
-    ? base.extend({ _style: blockStyleSchema, ...CLES_RICHES_SCHEMA })
+    ? base.extend({ _style: blockStyleSchema, _focal: focalSchema, ...CLES_RICHES_SCHEMA })
     : base
 }
 
