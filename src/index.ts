@@ -1,5 +1,6 @@
 export * from './types'
 export * from './section-types'
+export * from './rich-text'
 export * from './editors/types'
 export { RepeatableListEditor } from './editors/RepeatableListEditor'
 export { HeroEditor } from './editors/HeroEditor'

@@ -30,6 +30,10 @@ export function StoryEditor({
           ? <ImagePicker value={content.image} onChange={v => onChange({ ...content, image: v })} />
           : <input type="text" value={content.image ?? ''} onChange={e => onChange({ ...content, image: e.target.value })} placeholder="URL de l'image" />}
       </label>
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="text-xs opacity-70">Texte alternatif de l'image (accessibilité)</span>
+        <input type="text" value={content.imageAlt ?? ''} onChange={e => onChange({ ...content, imageAlt: e.target.value })} placeholder="Décrit l'image pour les lecteurs d'écran" />
+      </label>
     </div>
   )
 }

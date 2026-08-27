@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { SectionType } from './types'
+import { CHAMPS_RICHES, cleRiche, richTextSchema } from './rich-text'
 
 export interface RepeatableFieldConfig {
   key: string
@@ -44,7 +45,8 @@ const DEFAULT_VARIANT: SectionVariant[] = [{ key: 'default', label: 'Standard' }
 // existantes (voir migration 115_migrate_site_content.sql côté moontain-gallerie).
 export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   hero: {
-    key: 'hero', label: 'Bannière', kind: 'singleton', variants: DEFAULT_VARIANT,
+    key: 'hero', label: 'Bannière', kind: 'singleton',
+    variants: [{ key: 'default', label: 'Standard' }, { key: 'grid', label: 'Avec grille de projets' }, { key: 'cinematic', label: 'Plein écran (cinématique)' }, { key: 'header', label: 'En-tête de page' }],
     defaultContent: { headline: '', subtext: '', images: [] },
   },
   featured: {
@@ -71,11 +73,15 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   features: {
-    key: 'features', label: 'Pourquoi nous', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    key: 'features', label: 'Pourquoi nous', kind: 'repeatable',
+    variants: [{ key: 'default', label: 'Cartes' }, { key: 'split', label: 'Image + liste numérotée' }, { key: 'columns', label: 'Grille 2 colonnes à filets' }, { key: 'editorial', label: 'Navigation à images (survol)' }],
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
-      { key: 'description', label: 'Description', kind: 'textarea' },
-      { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'description', label: 'Description / sous-titre', kind: 'textarea' },
+      { key: 'image', label: 'Image (fond au survol en variante Navigation)', kind: 'image' },
+      { key: 'caption', label: 'Texte alternatif de l’image (accessibilité)', kind: 'text' },
+      { key: 'eyebrow', label: 'Numéro (ex. 01)', kind: 'text' },
+      { key: 'href', label: 'Lien (ex. /galerie/collections)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },
@@ -119,12 +125,13 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   projects: {
-    key: 'projects', label: 'Réalisations', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    key: 'projects', label: 'Réalisations', kind: 'repeatable', variants: [{ key: 'default', label: 'Grille' }, { key: 'filter', label: 'Grille filtrable (onglets)' }, { key: 'showcase', label: 'Liste grand format alternée' }, { key: 'collage', label: 'Cartes collage (3 images)' }],
     fields: [
       { key: 'name', label: 'Nom', kind: 'text' },
       { key: 'location', label: 'Lieu', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
       { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'slug', label: 'Lien vers la fiche projet (slug, optionnel)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },
@@ -144,13 +151,19 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'excerpt', label: 'Résumé', kind: 'textarea' },
       { key: 'body', label: 'Contenu', kind: 'textarea' },
       { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'caption', label: 'Texte alternatif de l’image (accessibilité)', kind: 'text' },
       { key: 'date', label: 'Date', kind: 'date' },
     ],
     defaultContent: { items: [] },
   },
   cta: {
-    key: 'cta', label: 'Bloc final', kind: 'singleton', variants: DEFAULT_VARIANT,
+    key: 'cta', label: 'Bloc final', kind: 'singleton',
+    variants: [{ key: 'default', label: 'Bannière image' }, { key: 'split', label: 'Deux colonnes (texte + boutons)' }, { key: 'centered', label: 'Centré (page interne)' }],
     defaultContent: { title: '', text: '', button: '' },
+  },
+  availability: {
+    key: 'availability', label: 'Disponibilité (bandeau)', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { text: '', highlight: '', linkLabel: '', linkHref: '' },
   },
   contact: {
     key: 'contact', label: 'Contact', kind: 'singleton', variants: DEFAULT_VARIANT,
@@ -191,11 +204,14 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'period', label: 'Période (ex. /mois)', kind: 'text' },
       { key: 'features', label: 'Avantages (une ligne = un avantage)', kind: 'textarea' },
       { key: 'highlighted', label: 'Mise en avant', kind: 'boolean' },
+      { key: 'image', label: 'Image (certains gabarits l’affichent)', kind: 'image' },
+      { key: 'caption', label: 'Texte alternatif de l’image (accessibilité)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },
   gallery: {
-    key: 'gallery', label: 'Galerie', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    key: 'gallery', label: 'Galerie', kind: 'repeatable',
+    variants: [{ key: 'default', label: 'Mosaïque' }, { key: 'strip', label: 'Bande pleine largeur' }],
     fields: [
       { key: 'image', label: 'Image', kind: 'image' },
       { key: 'caption', label: 'Légende (optionnel)', kind: 'text' },
@@ -213,6 +229,16 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   story: {
     key: 'story', label: 'Histoire (image + texte)', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { eyebrow: '', title: '', text: '', image: '' },
+  },
+  manifesto: {
+    key: 'manifesto', label: 'Manifeste', kind: 'singleton',
+    variants: [{ key: 'default', label: 'Deux colonnes' }, { key: 'centered', label: 'Centré (bande sombre)' }, { key: 'lead', label: 'Intro (chapô + paragraphe)' }],
+    defaultContent: { eyebrow: '', statement: '', emphasis: '', signature: '', body: '', linkLabel: '', linkHref: '' },
+  },
+  marquee: {
+    key: 'marquee', label: 'Bandeau défilant', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    fields: [{ key: 'label', label: 'Texte', kind: 'text' }],
+    defaultContent: { items: [] },
   },
   rooms: {
     key: 'rooms', label: 'Chambres', kind: 'repeatable',
@@ -346,9 +372,15 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     subtext: z.string().optional(),
     images: z.array(z.string()).optional(),
     image: z.string().optional(),
+    imageAlt: z.string().optional(),
     kicker: z.string().optional(),
     cta: z.string().optional(),
     cta2: z.string().optional(),
+    subline: z.string().optional(),
+    ctaHref: z.string().optional(),
+    grid: z.array(z.object({ image: z.string().optional(), title: z.string().optional(), category: z.string().optional(), href: z.string().optional() })).optional(),
+    footerLeft: z.string().optional(),
+    footerRight: z.string().optional(),
     ratio: z.string().optional(),
   }),
   featured: z.object({
@@ -361,10 +393,31 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     title: z.string().optional(),
     text: z.string().optional(),
     button: z.string().optional(),
+    image: z.string().optional(),
+    eyebrow: z.string().optional(),
+    emphasis: z.string().optional(),
+    buttonHref: z.string().optional(),
+    button2: z.string().optional(),
+    button2Href: z.string().optional(),
+  }),
+  availability: z.object({
+    text: z.string().optional(),
+    highlight: z.string().optional(),
+    linkLabel: z.string().optional(),
+    linkHref: z.string().optional(),
   }),
   contact: z.object({
     title: z.string().optional(),
     subtitle: z.string().optional(),
+  }),
+  manifesto: z.object({
+    eyebrow: z.string().optional(),
+    statement: z.string().optional(),
+    emphasis: z.string().optional(),
+    signature: z.string().optional(),
+    body: z.string().optional(),
+    linkLabel: z.string().optional(),
+    linkHref: z.string().optional(),
   }),
   video: z.object({
     title: z.string().optional(),
@@ -381,6 +434,7 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     title: z.string().optional(),
     text: z.string().optional(),
     image: z.string().optional(),
+    imageAlt: z.string().optional(),
     ratio: z.string().optional(),
   }),
   booking: z.object({
@@ -407,14 +461,37 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
 
+// Style de bloc (panneau CMS « Fond/Espacement/Alignement/Coins arrondis »,
+// voir mapSections dans moontain-sites) : transversal à tous les types de
+// section, donc ajouté une seule fois ici plutôt que dans chaque schéma.
+const blockStyleSchema = z.object({
+  bg: z.string().optional(),
+  pad: z.string().optional(),
+  radius: z.boolean().optional(),
+  align: z.string().optional(),
+}).optional()
+
 /** Schéma de validation du contenu d'une section, pour vérifier côté serveur
  * ce qui est écrit en base avant de l'accepter (voir server actions
- * updateSiteSectionContent dans moontain-gallerie/espace-clients). */
+ * updateSiteSectionContent dans moontain-gallerie/espace-clients).
+ *
+ * Un objet zod sans .passthrough() retire silencieusement (sans erreur) les
+ * champs qu'il ne déclare pas : _style disparaissait donc à chaque
+ * enregistrement, alors que le panneau de style l'écrivait bien. */
 export function sectionContentSchema(type: SectionType): z.ZodTypeAny {
   const def = SECTION_TYPES[type]
-  if (def.kind === 'repeatable') return repeatableContentSchema(def.fields)
-  return singletonSchemas[type] ?? z.record(z.unknown())
+  const base = def.kind === 'repeatable' ? repeatableContentSchema(def.fields) : (singletonSchemas[type] ?? z.record(z.unknown()))
+  // Mêmes raisons pour les clés riches (`textRich`…) que pour _style : sans
+  // déclaration ici, elles seraient retirées à l'enregistrement. Les éléments
+  // répétables (items[]) sont déjà en .passthrough(), ils n'en ont pas besoin.
+  return base instanceof z.ZodObject
+    ? base.extend({ _style: blockStyleSchema, ...CLES_RICHES_SCHEMA })
+    : base
 }
+
+const CLES_RICHES_SCHEMA = Object.fromEntries(
+  CHAMPS_RICHES.map(champ => [cleRiche(champ), richTextSchema.optional()]),
+)
 
 /** Variante effective d'une instance de section — retombe sur la 1re
  * variante déclarée si absente ou inconnue. */
