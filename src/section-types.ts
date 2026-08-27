@@ -464,12 +464,38 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
 // Style de bloc (panneau CMS « Fond/Espacement/Alignement/Coins arrondis »,
 // voir mapSections dans moontain-sites) : transversal à tous les types de
 // section, donc ajouté une seule fois ici plutôt que dans chaque schéma.
+/** Ce qu'un bloc peut décliner par appareil. Volontairement restreint à ce qui
+ *  répare vraiment une mise en page étroite : masquer, resserrer, recentrer.
+ *  Le fond et les coins n'y sont pas — les décliner ferait deux identités
+ *  visuelles pour un même site, ce que toute la plateforme cherche à éviter. */
+const declinaisonSchema = z.object({
+  masque: z.boolean().optional(),
+  pad: z.string().optional(),
+  align: z.string().optional(),
+}).optional()
+
 const blockStyleSchema = z.object({
   bg: z.string().optional(),
   pad: z.string().optional(),
   radius: z.boolean().optional(),
   align: z.string().optional(),
+  /** Déclinaisons descendantes : ce qui est réglé pour la tablette vaut aussi
+   *  pour le mobile, sauf si le mobile le redit. C'est l'ordre dans lequel on
+   *  regarde un site dans l'éditeur, donc celui qui surprend le moins. */
+  tablette: declinaisonSchema,
+  mobile: declinaisonSchema,
 }).optional()
+
+/** Réglages de style d'un bloc, tels que l'éditeur les écrit dans `_style`. */
+export interface BlockStyleDeclinaison { masque?: boolean; pad?: string; align?: string }
+export interface BlockStyleConfig {
+  bg?: string
+  pad?: string
+  radius?: boolean
+  align?: string
+  tablette?: BlockStyleDeclinaison
+  mobile?: BlockStyleDeclinaison
+}
 
 /** Schéma de validation du contenu d'une section, pour vérifier côté serveur
  * ce qui est écrit en base avant de l'accepter (voir server actions
