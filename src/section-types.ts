@@ -408,7 +408,10 @@ const repeatableContentSchema = (fields: RepeatableFieldConfig[]) =>
  *  retiré silencieusement à l'enregistrement — c'est le piège qui avait fait
  *  disparaître `_style`. */
 const elementLibreSchema = z.object({
-  type: z.enum(['titre', 'texte', 'image', 'bouton', 'trait', 'espace']),
+  type: z.enum([
+    'titre', 'texte', 'image', 'bouton', 'trait', 'espace',
+    'icone', 'video', 'galerie', 'compte', 'carte', 'reseaux', 'html',
+  ]),
   texte: z.string().optional(),
   niveau: z.string().optional(),
   image: z.string().optional(),
@@ -416,6 +419,16 @@ const elementLibreSchema = z.object({
   href: z.string().optional(),
   apparence: z.string().optional(),
   taille: z.string().optional(),
+  // ── Version 2 ─────────────────────────────────────────────────────────────
+  icone: z.string().optional(),
+  videoUrl: z.string().optional(),
+  poster: z.string().optional(),
+  images: z.array(z.object({ image: z.string().optional(), alt: z.string().optional() }).passthrough()).optional(),
+  date: z.string().optional(),
+  apres: z.string().optional(),
+  adresse: z.string().optional(),
+  reseaux: z.array(z.object({ nom: z.string().optional(), href: z.string().optional() }).passthrough()).optional(),
+  html: z.string().optional(),
 }).passthrough()
 
 const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {

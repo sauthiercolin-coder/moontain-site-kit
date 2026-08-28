@@ -47,7 +47,13 @@ export type SectionType =
  *  palette qui enfle redevient une page blanche, et c'est justement ce qu'un
  *  bloc typé évite. Ces six-là couvrent le « je veux juste poser un bouton
  *  ici » qui manquait, sans rouvrir la porte au placement absolu. */
-export type ElementLibreType = 'titre' | 'texte' | 'image' | 'bouton' | 'trait' | 'espace'
+export type ElementLibreType =
+  | 'titre' | 'texte' | 'image' | 'bouton' | 'trait' | 'espace'
+  // Version 2. Vidéo, galerie et carte existent aussi comme blocs entiers : ce
+  // sont ici des versions simples, et c'est tout l'intérêt du bloc libre —
+  // poser un texte et une vidéo côte à côte dans deux colonnes, ce qu'un bloc
+  // séparé ne sait pas faire. Les blocs dédiés restent pour les cas riches.
+  | 'icone' | 'video' | 'galerie' | 'compte' | 'carte' | 'reseaux' | 'html'
 
 /** Un élément d'un bloc libre. Tous les champs sont optionnels sauf `type` :
  *  un élément à peine posé doit pouvoir exister avant d'être rempli, comme un
@@ -67,7 +73,52 @@ export interface ElementLibre {
   apparence?: string
   /** Espace seulement : 'petit' | 'moyen' | 'grand'. */
   taille?: string
+
+  // ── Version 2 ─────────────────────────────────────────────────────────────
+  /** Icône seulement : clé dans ICONES_LIBRE. */
+  icone?: string
+  /** Vidéo seulement : adresse YouTube, Vimeo ou fichier, et image d'attente. */
+  videoUrl?: string
+  poster?: string
+  /** Galerie seulement. Une liste dans un élément, là où les autres champs sont
+   *  plats : une galerie sans plusieurs images n'est pas une galerie. */
+  images?: { image?: string; alt?: string }[]
+  /** Compte à rebours seulement : date visée (ISO) et ce qu'on affiche après. */
+  date?: string
+  apres?: string
+  /** Carte seulement : adresse postale, géocodée par le fournisseur de cartes. */
+  adresse?: string
+  /** Réseaux sociaux seulement. L'élément porte ses propres liens : les faire
+   *  descendre depuis les coordonnées de l'entreprise demanderait de traverser
+   *  une douzaine de gabarits. L'inspecteur du CMS propose de les recopier. */
+  reseaux?: { nom?: string; href?: string }[]
+  /** HTML brut seulement. Réservé au studio : un client pourrait y coller un
+   *  traceur, ce qui ruinerait l'argument « aucun cookie, aucun bandeau ». */
+  html?: string
 }
+
+/** Icônes disponibles pour l'élément « icône avec texte ».
+ *
+ *  Les tracés vivent ici plutôt que dans chaque application : l'inspecteur doit
+ *  montrer le choix, le rendu doit le dessiner, et une bibliothèque d'icônes
+ *  côté site ajouterait un paquet à charger pour douze traits.
+ *
+ *  Douze, et pas trois cents : au-delà, choisir devient une corvée et les sites
+ *  se mettent à ressembler à des catalogues de pictogrammes. */
+export const ICONES_LIBRE: { cle: string; label: string; d: string }[] = [
+  { cle: 'check',   label: 'Coche',      d: 'M20 6 9 17l-5-5' },
+  { cle: 'etoile',  label: 'Étoile',     d: 'm12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9-6.2-3.3-6.2 3.3L7 14.2l-5-4.9 6.9-1z' },
+  { cle: 'coeur',   label: 'Cœur',       d: 'M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z' },
+  { cle: 'tel',     label: 'Téléphone',  d: 'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z' },
+  { cle: 'mail',    label: 'E-mail',     d: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm18 3-10 6L2 7' },
+  { cle: 'lieu',    label: 'Lieu',       d: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z' },
+  { cle: 'horloge', label: 'Horloge',    d: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0-16v6l4 2' },
+  { cle: 'agenda',  label: 'Agenda',     d: 'M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 10h18M8 2v4m8-4v4' },
+  { cle: 'bouclier',label: 'Bouclier',   d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
+  { cle: 'eclair',  label: 'Éclair',     d: 'M13 2 3 14h8l-1 8 10-12h-8z' },
+  { cle: 'outil',   label: 'Outil',      d: 'M14.7 6.3a4 4 0 0 0 5 5l-9.4 9.4a2.8 2.8 0 0 1-4-4z' },
+  { cle: 'feuille', label: 'Feuille',    d: 'M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16zM4 20c2-4 5-7 9-9' },
+]
 
 export interface SectionInstance<T = unknown> {
   id: string
