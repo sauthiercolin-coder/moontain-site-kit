@@ -25,6 +25,7 @@ interface GroupSpec { title: string; fields: FieldSpec[] }
 
 export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   hero: 'La grande bannière en haut de la page.',
+  libre: 'Des éléments à composer vous-même : titre, texte, image, bouton.',
   featured: 'Une réalisation mise en avant.',
   cta: "Un bloc d'appel à l'action en bas de page.",
   contact: "L'invitation à vous contacter.",

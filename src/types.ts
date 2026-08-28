@@ -41,6 +41,33 @@ export type SectionType =
   | 'moduleMembership'
   | 'moduleReviews'
   | 'form'
+  | 'libre'
+
+/** Nature d'un élément d'un bloc libre. Volontairement peu de valeurs : une
+ *  palette qui enfle redevient une page blanche, et c'est justement ce qu'un
+ *  bloc typé évite. Ces six-là couvrent le « je veux juste poser un bouton
+ *  ici » qui manquait, sans rouvrir la porte au placement absolu. */
+export type ElementLibreType = 'titre' | 'texte' | 'image' | 'bouton' | 'trait' | 'espace'
+
+/** Un élément d'un bloc libre. Tous les champs sont optionnels sauf `type` :
+ *  un élément à peine posé doit pouvoir exister avant d'être rempli, comme un
+ *  item de liste répétable. */
+export interface ElementLibre {
+  type: ElementLibreType
+  /** Titre, paragraphe, ou libellé du bouton selon `type`. */
+  texte?: string
+  /** Titre seulement : 'h2' (défaut) ou 'h3'. Pas de h1 — il appartient à la
+   *  bannière de la page, et deux h1 sur une page se disputent le sujet. */
+  niveau?: string
+  /** Image seulement. `alt` sert aux moteurs et aux lecteurs d'écran. */
+  image?: string
+  alt?: string
+  /** Bouton seulement : destination, et apparence pleine ou en contour. */
+  href?: string
+  apparence?: string
+  /** Espace seulement : 'petit' | 'moyen' | 'grand'. */
+  taille?: string
+}
 
 export interface SectionInstance<T = unknown> {
   id: string

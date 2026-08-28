@@ -363,6 +363,34 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'form', label: 'Formulaire', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { formId: '', title: '', intro: '' },
   },
+
+  // Bloc « libre » : une suite ordonnée d'éléments (titre, paragraphe, image,
+  // bouton, trait, espace) au lieu de champs nommés.
+  //
+  // C'est la réponse au « je veux juste poser un bouton ici », que trente-cinq
+  // blocs typés ne couvrent pas — et la seule qu'on puisse donner sans passer
+  // au placement absolu. Un élément posé en absolu n'a ni comportement mobile,
+  // ni clé de traduction, ni place dans un gabarit ; en flux, il garde les
+  // trois. Le prix à payer est qu'on ne place rien au pixel, ce qui est
+  // exactement le prix qu'on veut payer.
+  //
+  // `singleton` et non `repeatable` : les éléments n'ont pas tous les mêmes
+  // champs (une image n'a pas de niveau de titre, un espace n'a pas de texte),
+  // et RepeatableListEditor affiche les mêmes champs pour tous. D'où un
+  // éditeur dédié, comme pour la bannière ou le bloc histoire.
+  //
+  // Le nombre de colonnes est une VARIANTE et non un champ : c'est une mise en
+  // page, pas un contenu, et les variantes se choisissent déjà à un endroit
+  // connu de l'inspecteur.
+  libre: {
+    key: 'libre', label: 'Bloc libre', kind: 'singleton',
+    variants: [
+      { key: 'flux', label: 'Une colonne' },
+      { key: 'deux', label: 'Deux colonnes' },
+      { key: 'trois', label: 'Trois colonnes' },
+    ],
+    defaultContent: { items: [] },
+  },
 }
 
 const repeatableItemSchema = (fields: RepeatableFieldConfig[]) =>
@@ -375,7 +403,25 @@ const repeatableContentSchema = (fields: RepeatableFieldConfig[]) =>
   // rendu, voir mapSections dans moontain-sites). '' / 'auto' = format d'origine.
   z.object({ items: z.array(repeatableItemSchema(fields)).default([]), ratio: z.string().optional() })
 
+/** Un élément d'un bloc libre. `passthrough()` pour la même raison que les
+ *  items répétables : un champ ajouté plus tard côté éditeur ne doit pas être
+ *  retiré silencieusement à l'enregistrement — c'est le piège qui avait fait
+ *  disparaître `_style`. */
+const elementLibreSchema = z.object({
+  type: z.enum(['titre', 'texte', 'image', 'bouton', 'trait', 'espace']),
+  texte: z.string().optional(),
+  niveau: z.string().optional(),
+  image: z.string().optional(),
+  alt: z.string().optional(),
+  href: z.string().optional(),
+  apparence: z.string().optional(),
+  taille: z.string().optional(),
+}).passthrough()
+
 const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
+  libre: z.object({
+    items: z.array(elementLibreSchema).optional(),
+  }),
   hero: z.object({
     headline: z.string().optional(),
     subtext: z.string().optional(),

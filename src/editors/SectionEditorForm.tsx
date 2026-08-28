@@ -11,6 +11,7 @@ import { VideoEditor } from './VideoEditor'
 import { MapEditor } from './MapEditor'
 import { StoryEditor } from './StoryEditor'
 import { BookingEditor } from './BookingEditor'
+import { LibreEditor } from './LibreEditor'
 import type { ImagePickerComponent } from './types'
 
 /** Point d'entrée unique des formulaires d'édition — c'est ce composant que
@@ -55,6 +56,8 @@ export function SectionEditorForm({
       return <StoryEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
     case 'booking':
       return <BookingEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
+    case 'libre':
+      return <LibreEditor content={(content as never) ?? {}} onChange={onChange as never} ImagePicker={ImagePicker} />
     default:
       return null
   }
