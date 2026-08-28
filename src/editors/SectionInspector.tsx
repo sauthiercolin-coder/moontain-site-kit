@@ -315,6 +315,148 @@ function RepeatableInspector({ type, content, onChange, ImagePicker }: {
   )
 }
 
+// ── Bloc libre ───────────────────────────────────────────────────────────────
+// Ni « singleton » ni « répétable » du point de vue de l'édition : une suite
+// d'éléments qui n'ont PAS les mêmes champs. RepeatableInspector affiche les
+// mêmes champs pour tous — sur un trait horizontal, ça donnerait six champs
+// vides — et SingletonInspector, faute de grille de champs pour ce type, ne
+// rendait tout simplement rien : le bloc s'ajoutait mais restait inéditable.
+
+const NATURES: { type: string; label: string }[] = [
+  { type: 'titre', label: 'Titre' },
+  { type: 'texte', label: 'Paragraphe' },
+  { type: 'image', label: 'Image' },
+  { type: 'bouton', label: 'Bouton' },
+  { type: 'trait', label: 'Trait' },
+  { type: 'espace', label: 'Espace' },
+]
+const NATURE_LABEL: Record<string, string> =
+  Object.fromEntries(NATURES.map(n => [n.type, n.label]))
+
+// Contenu d'amorce : un élément posé doit se voir tout de suite dans l'aperçu.
+// Sans texte de départ, on ajoute un titre, rien ne bouge, et on croit que le
+// bouton n'a pas marché.
+const AMORCE: Record<string, Obj> = {
+  titre:  { type: 'titre', texte: 'Un titre', niveau: 'h2' },
+  texte:  { type: 'texte', texte: 'Votre texte ici.' },
+  bouton: { type: 'bouton', texte: 'En savoir plus', href: '/contact', apparence: 'plein' },
+  espace: { type: 'espace', taille: 'moyen' },
+}
+
+function Choix({ label, value, options, onChange }: {
+  label: string; value: string; options: [string, string][]; onChange: (v: string) => void
+}) {
+  return (
+    <div className="insp-field">
+      <label>{label}</label>
+      <select value={value} onChange={e => onChange(e.target.value)}>
+        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
+    </div>
+  )
+}
+
+function LibreInspector({ content, onChange, ImagePicker }: {
+  content: Obj; onChange: (c: Obj) => void; ImagePicker?: ImagePickerComponent
+}) {
+  const items: Obj[] = Array.isArray(content?.items) ? content.items : []
+  const commit = (next: Obj[]) => onChange({ ...content, items: next })
+  const set = (i: number, cle: string, v: any) => commit(items.map((x, j) => j === i ? { ...x, [cle]: v } : x))
+  const move = (i: number, d: number) => {
+    const j = i + d
+    if (j < 0 || j >= items.length) return
+    const next = items.slice(); [next[i], next[j]] = [next[j], next[i]]; commit(next)
+  }
+
+  const resume = (el: Obj, i: number) => {
+    const t = (el.texte ?? '').toString().trim()
+    return t || `${NATURE_LABEL[el.type] ?? el.type} ${i + 1}`
+  }
+
+  const champs = (el: Obj, i: number) => {
+    switch (el.type) {
+      case 'titre': return (
+        <>
+          <Field spec={{ key: 'texte', label: 'Titre', kind: 'text' }} value={el.texte} onChange={v => set(i, 'texte', v)} />
+          {/* Pas de h1 : il appartient à la bannière de la page, et deux h1 se
+              disputent le sujet aux yeux des moteurs. */}
+          <Choix label="Niveau" value={el.niveau ?? 'h2'} onChange={v => set(i, 'niveau', v)}
+            options={[['h2', 'Titre principal'], ['h3', 'Sous-titre']]} />
+        </>
+      )
+      case 'texte': return (
+        <Field spec={{ key: 'texte', label: 'Texte', kind: 'textarea' }} value={el.texte} onChange={v => set(i, 'texte', v)} />
+      )
+      case 'image': return (
+        <>
+          <Field spec={{ key: 'image', label: 'Image', kind: 'image' }} value={el.image} onChange={v => set(i, 'image', v)} ImagePicker={ImagePicker} />
+          <Field spec={{ key: 'alt', label: 'Texte alternatif', kind: 'text',
+            help: 'Ce que montre l’image. Sert aux moteurs et aux lecteurs d’écran.' }}
+            value={el.alt} onChange={v => set(i, 'alt', v)} />
+        </>
+      )
+      case 'bouton': return (
+        <>
+          <Field spec={{ key: 'texte', label: 'Libellé', kind: 'text' }} value={el.texte} onChange={v => set(i, 'texte', v)} />
+          <Field spec={{ key: 'href', label: 'Destination', kind: 'text', placeholder: '/contact, #tarifs ou https://…' }}
+            value={el.href} onChange={v => set(i, 'href', v)} />
+          <Choix label="Apparence" value={el.apparence ?? 'plein'} onChange={v => set(i, 'apparence', v)}
+            options={[['plein', 'Plein'], ['contour', 'Contour']]} />
+        </>
+      )
+      case 'espace': return (
+        <Choix label="Hauteur" value={el.taille ?? 'moyen'} onChange={v => set(i, 'taille', v)}
+          options={[['petit', 'Petite'], ['moyen', 'Moyenne'], ['grand', 'Grande']]} />
+      )
+      // Le dire vaut mieux qu'un volet vide, qui laisserait croire que quelque
+      // chose n'a pas fini de charger.
+      case 'trait': return <p className="insp-help">Une ligne de séparation. Rien à régler.</p>
+      default: return null
+    }
+  }
+
+  return (
+    <div className="stack" style={{ gap: 0 }}>
+      {items.length === 0 && (
+        <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>
+          Aucun élément pour l’instant. Ajoutez-en un ci-dessous.
+        </p>
+      )}
+      {items.map((el, i) => (
+        <details key={i} className="insp-item" open={items.length <= 3}>
+          <summary>
+            <span className="insp-summary-title">{resume(el, i)}</span>
+            <span className="insp-itembar">
+              <button type="button" className="insp-iconbtn" title="Monter" disabled={i === 0} onClick={e => { e.preventDefault(); move(i, -1) }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+              </button>
+              <button type="button" className="insp-iconbtn" title="Descendre" disabled={i === items.length - 1} onClick={e => { e.preventDefault(); move(i, 1) }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+              </button>
+              <button type="button" className="insp-iconbtn" title="Supprimer" onClick={e => { e.preventDefault(); commit(items.filter((_, j) => j !== i)) }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-9 0v14a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6" /></svg>
+              </button>
+            </span>
+            <Caret />
+          </summary>
+          <div className="insp-fields">{champs(el, i)}</div>
+        </details>
+      ))}
+
+      {/* Les six natures en clair plutôt qu'une liste déroulante : on ajoute
+          d'un seul geste, et la palette visible dit ce que le bloc sait faire. */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+        {NATURES.map(n => (
+          <button key={n.type} type="button" className="insp-add" style={{ flex: '0 0 auto', marginTop: 0 }}
+            onClick={() => commit([...items, AMORCE[n.type] ?? { type: n.type }])}>
+            + {n.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /** Inspecteur d'une section — remplace le formulaire brut (SectionEditorForm)
  * par une présentation regroupée, relibellée et pliable. Mêmes props. */
 export function SectionInspector({ type, content, onChange, ImagePicker }: {
@@ -323,9 +465,11 @@ export function SectionInspector({ type, content, onChange, ImagePicker }: {
   const c = (content as Obj) ?? {}
   return (
     <div className="insp">
-      {SECTION_TYPES[type].kind === 'repeatable'
-        ? <RepeatableInspector type={type} content={c} onChange={onChange} ImagePicker={ImagePicker} />
-        : <SingletonInspector type={type} content={c} onChange={onChange} ImagePicker={ImagePicker} />}
+      {type === 'libre'
+        ? <LibreInspector content={c} onChange={onChange} ImagePicker={ImagePicker} />
+        : SECTION_TYPES[type].kind === 'repeatable'
+          ? <RepeatableInspector type={type} content={c} onChange={onChange} ImagePicker={ImagePicker} />
+          : <SingletonInspector type={type} content={c} onChange={onChange} ImagePicker={ImagePicker} />}
     </div>
   )
 }
