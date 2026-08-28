@@ -1,6 +1,7 @@
 'use client'
 
 import { SECTION_TYPES } from '../section-types'
+import { ICONES_LIBRE } from '../types'
 import type { SectionType } from '../types'
 import type { ImagePickerComponent } from './types'
 
@@ -322,13 +323,22 @@ function RepeatableInspector({ type, content, onChange, ImagePicker }: {
 // vides — et SingletonInspector, faute de grille de champs pour ce type, ne
 // rendait tout simplement rien : le bloc s'ajoutait mais restait inéditable.
 
-const NATURES: { type: string; label: string }[] = [
+const NATURES: { type: string; label: string; studio?: boolean }[] = [
   { type: 'titre', label: 'Titre' },
   { type: 'texte', label: 'Paragraphe' },
   { type: 'image', label: 'Image' },
   { type: 'bouton', label: 'Bouton' },
   { type: 'trait', label: 'Trait' },
   { type: 'espace', label: 'Espace' },
+  { type: 'icone', label: 'Icône + texte' },
+  { type: 'video', label: 'Vidéo' },
+  { type: 'galerie', label: 'Galerie' },
+  { type: 'compte', label: 'Compte à rebours' },
+  { type: 'carte', label: 'Carte' },
+  { type: 'reseaux', label: 'Réseaux' },
+  // Réservé au studio : un client pourrait y coller un traceur, ce qui
+  // ruinerait l'argument « aucun cookie, aucun bandeau ».
+  { type: 'html', label: 'HTML', studio: true },
 ]
 const NATURE_LABEL: Record<string, string> =
   Object.fromEntries(NATURES.map(n => [n.type, n.label]))
@@ -341,6 +351,10 @@ const AMORCE: Record<string, Obj> = {
   texte:  { type: 'texte', texte: 'Votre texte ici.' },
   bouton: { type: 'bouton', texte: 'En savoir plus', href: '/contact', apparence: 'plein' },
   espace: { type: 'espace', taille: 'moyen' },
+  icone:  { type: 'icone', icone: 'check', texte: 'Un argument en une ligne.' },
+  compte: { type: 'compte', texte: 'Plus que', apres: 'C’est parti !' },
+  galerie: { type: 'galerie', images: [{}, {}, {}] },
+  reseaux: { type: 'reseaux', reseaux: [{ nom: 'Instagram', href: '' }] },
 }
 
 function Choix({ label, value, options, onChange }: {
@@ -356,8 +370,12 @@ function Choix({ label, value, options, onChange }: {
   )
 }
 
-function LibreInspector({ content, onChange, ImagePicker }: {
+function LibreInspector({ content, onChange, ImagePicker, studio, business }: {
   content: Obj; onChange: (c: Obj) => void; ImagePicker?: ImagePickerComponent
+  /** Le studio voit des natures que le client ne voit pas (HTML brut). */
+  studio?: boolean
+  /** Coordonnées de l'organisation, pour recopier ses réseaux d'un clic. */
+  business?: Obj
 }) {
   const items: Obj[] = Array.isArray(content?.items) ? content.items : []
   const commit = (next: Obj[]) => onChange({ ...content, items: next })
@@ -367,6 +385,28 @@ function LibreInspector({ content, onChange, ImagePicker }: {
     if (j < 0 || j >= items.length) return
     const next = items.slice(); [next[i], next[j]] = [next[j], next[i]]; commit(next)
   }
+
+  // Une liste DANS un élément : la galerie a plusieurs images, les réseaux
+  // plusieurs comptes. Volontairement sans volets pliables — on est déjà dans
+  // le volet d'un élément, et emboîter deux niveaux de pliage rendrait le
+  // panneau illisible.
+  const sousListe = (i: number, cle: string, liste: Obj[], rendu: (l: Obj, j: number, maj: (c: string, v: any) => void) => any, libelleAjout: string) => (
+    <div className="stack" style={{ gap: 8 }}>
+      {liste.map((l, j) => (
+        <div key={j} style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {rendu(l, j, (c, v) => set(i, cle, liste.map((x, k) => k === j ? { ...x, [c]: v } : x)))}
+          </div>
+          <button type="button" className="insp-iconbtn" title="Retirer"
+            onClick={e => { e.preventDefault(); set(i, cle, liste.filter((_, k) => k !== j)) }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+      ))}
+      <button type="button" className="insp-add" style={{ marginTop: 0 }}
+        onClick={() => set(i, cle, [...liste, {}])}>+ {libelleAjout}</button>
+    </div>
+  )
 
   const resume = (el: Obj, i: number) => {
     const t = (el.texte ?? '').toString().trim()
@@ -408,6 +448,105 @@ function LibreInspector({ content, onChange, ImagePicker }: {
         <Choix label="Hauteur" value={el.taille ?? 'moyen'} onChange={v => set(i, 'taille', v)}
           options={[['petit', 'Petite'], ['moyen', 'Moyenne'], ['grand', 'Grande']]} />
       )
+      case 'icone': return (
+        <>
+          <div className="insp-field">
+            <label>Icône</label>
+            {/* Les douze en grille plutôt qu'en liste déroulante : on choisit
+                une icône en la voyant, pas en lisant son nom. */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 4 }}>
+              {ICONES_LIBRE.map(ic => (
+                <button key={ic.cle} type="button" title={ic.label}
+                  className="insp-iconbtn"
+                  style={{ aspectRatio: '1', width: '100%', height: 'auto',
+                    background: (el.icone ?? 'check') === ic.cle ? 'var(--accent, #4756A0)' : undefined,
+                    color: (el.icone ?? 'check') === ic.cle ? '#fff' : undefined }}
+                  onClick={e => { e.preventDefault(); set(i, 'icone', ic.cle) }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={ic.d} /></svg>
+                </button>
+              ))}
+            </div>
+          </div>
+          <Field spec={{ key: 'texte', label: 'Texte', kind: 'textarea' }} value={el.texte} onChange={v => set(i, 'texte', v)} />
+        </>
+      )
+      case 'video': return (
+        <>
+          <Field spec={{ key: 'videoUrl', label: 'Adresse de la vidéo', kind: 'text',
+            placeholder: 'YouTube, Vimeo, ou un fichier .mp4',
+            help: 'Une adresse YouTube ou Vimeo est intégrée ; un fichier est lu directement.' }}
+            value={el.videoUrl} onChange={v => set(i, 'videoUrl', v)} />
+          <Field spec={{ key: 'poster', label: 'Image d’attente', kind: 'image',
+            help: 'Affichée avant la lecture. Sans elle, le lecteur démarre sur du noir.' }}
+            value={el.poster} onChange={v => set(i, 'poster', v)} ImagePicker={ImagePicker} />
+        </>
+      )
+      case 'galerie': {
+        const imgs: Obj[] = Array.isArray(el.images) ? el.images : []
+        return (
+          <div className="insp-field">
+            <label>Images</label>
+            <p className="insp-help">Une galerie simple. Pour une vraie mosaïque légendée, le bloc « Galerie » fait mieux.</p>
+            {sousListe(i, 'images', imgs, (l, j, maj) => (
+              <>
+                <Field spec={{ key: `im${j}`, label: `Image ${j + 1}`, kind: 'image' }} value={l.image} onChange={v => maj('image', v)} ImagePicker={ImagePicker} />
+                <Field spec={{ key: `al${j}`, label: 'Texte alternatif', kind: 'text' }} value={l.alt} onChange={v => maj('alt', v)} />
+              </>
+            ), 'Ajouter une image')}
+          </div>
+        )
+      }
+      case 'compte': return (
+        <>
+          <Field spec={{ key: 'date', label: 'Échéance', kind: 'date' }} value={el.date} onChange={v => set(i, 'date', v)} />
+          <Field spec={{ key: 'texte', label: 'Avant le décompte', kind: 'text', placeholder: 'Plus que' }} value={el.texte} onChange={v => set(i, 'texte', v)} />
+          <Field spec={{ key: 'apres', label: 'Une fois la date passée', kind: 'text', placeholder: 'C’est parti !',
+            help: 'Ce qui s’affiche à la place du décompte. Sans ça, un compte à rebours périmé reste à zéro pour toujours.' }}
+            value={el.apres} onChange={v => set(i, 'apres', v)} />
+        </>
+      )
+      case 'carte': return (
+        <Field spec={{ key: 'adresse', label: 'Adresse', kind: 'text', placeholder: 'Rue Exemple 1, 1950 Sion',
+          help: 'Affichée sur une carte. Le bloc « Carte / localisation » ajoute un titre et un texte.' }}
+          value={el.adresse} onChange={v => set(i, 'adresse', v)} />
+      )
+      case 'reseaux': {
+        const rs: Obj[] = Array.isArray(el.reseaux) ? el.reseaux : []
+        const duSite = Object.entries((business?.social as Obj) ?? {})
+          .filter(([, v]) => typeof v === 'string' && (v as string).trim())
+          .map(([nom, href]) => ({ nom: nom.charAt(0).toUpperCase() + nom.slice(1), href: href as string }))
+        return (
+          <div className="insp-field">
+            <label>Comptes</label>
+            {duSite.length > 0 && (
+              <>
+                <p className="insp-help">Les comptes de l’entreprise sont déjà saisis dans les coordonnées.</p>
+                <button type="button" className="insp-add" style={{ marginTop: 0, marginBottom: 8 }}
+                  onClick={() => set(i, 'reseaux', duSite)}>
+                  Reprendre ceux de l’entreprise ({duSite.length})
+                </button>
+              </>
+            )}
+            {sousListe(i, 'reseaux', rs, (l, j, maj) => (
+              <>
+                <Field spec={{ key: `rn${j}`, label: 'Nom', kind: 'text', placeholder: 'Instagram' }} value={l.nom} onChange={v => maj('nom', v)} />
+                <Field spec={{ key: `rh${j}`, label: 'Adresse', kind: 'text', placeholder: 'https://…' }} value={l.href} onChange={v => maj('href', v)} />
+              </>
+            ), 'Ajouter un compte')}
+          </div>
+        )
+      }
+      case 'html': return (
+        <div className="insp-field">
+          <label>HTML</label>
+          <p className="insp-help">
+            Collé tel quel dans la page. Réservé au studio : un script posé ici peut casser la mise
+            en page, ou déposer un cookie — et faire tomber l’argument « aucun bandeau ».
+          </p>
+          <textarea rows={6} spellCheck={false} style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12.5 }}
+            value={el.html ?? ''} onChange={e => set(i, 'html', e.target.value)} />
+        </div>
+      )
       // Le dire vaut mieux qu'un volet vide, qui laisserait croire que quelque
       // chose n'a pas fini de charger.
       case 'trait': return <p className="insp-help">Une ligne de séparation. Rien à régler.</p>
@@ -446,7 +585,7 @@ function LibreInspector({ content, onChange, ImagePicker }: {
       {/* Les six natures en clair plutôt qu'une liste déroulante : on ajoute
           d'un seul geste, et la palette visible dit ce que le bloc sait faire. */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-        {NATURES.map(n => (
+        {NATURES.filter(n => !n.studio || studio).map(n => (
           <button key={n.type} type="button" className="insp-add" style={{ flex: '0 0 auto', marginTop: 0 }}
             onClick={() => commit([...items, AMORCE[n.type] ?? { type: n.type }])}>
             + {n.label}
@@ -459,14 +598,20 @@ function LibreInspector({ content, onChange, ImagePicker }: {
 
 /** Inspecteur d'une section — remplace le formulaire brut (SectionEditorForm)
  * par une présentation regroupée, relibellée et pliable. Mêmes props. */
-export function SectionInspector({ type, content, onChange, ImagePicker }: {
+export function SectionInspector({ type, content, onChange, ImagePicker, studio, business }: {
   type: SectionType; content: unknown; onChange: (content: unknown) => void; ImagePicker?: ImagePickerComponent
+  /** Vrai dans le CMS du studio, absent dans l'éditeur client. Ouvre les
+   *  natures d'élément qu'un client ne doit pas pouvoir poser. */
+  studio?: boolean
+  /** Coordonnées de l'organisation (draft.business), pour proposer de recopier
+   *  ses réseaux au lieu de les redemander. */
+  business?: Record<string, unknown>
 }) {
   const c = (content as Obj) ?? {}
   return (
     <div className="insp">
       {type === 'libre'
-        ? <LibreInspector content={c} onChange={onChange} ImagePicker={ImagePicker} />
+        ? <LibreInspector content={c} onChange={onChange} ImagePicker={ImagePicker} studio={studio} business={business as Obj | undefined} />
         : SECTION_TYPES[type].kind === 'repeatable'
           ? <RepeatableInspector type={type} content={c} onChange={onChange} ImagePicker={ImagePicker} />
           : <SingletonInspector type={type} content={c} onChange={onChange} ImagePicker={ImagePicker} />}
