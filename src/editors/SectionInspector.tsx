@@ -27,6 +27,7 @@ interface GroupSpec { title: string; fields: FieldSpec[] }
 export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   hero: 'La grande bannière en haut de la page.',
   libre: 'Des éléments à composer vous-même : titre, texte, image, bouton.',
+  liste: 'Affiche une liste de données du site — biens, véhicules, références.',
   featured: 'Une réalisation mise en avant.',
   cta: "Un bloc d'appel à l'action en bas de page.",
   contact: "L'invitation à vous contacter.",
@@ -596,9 +597,86 @@ function LibreInspector({ content, onChange, ImagePicker, studio, business }: {
   )
 }
 
+// ── Bloc « liste » ───────────────────────────────────────────────────────────
+// Il ne saisit pas de données : il désigne une liste et dit quels champs
+// occupent quels rôles dans la carte. Les listes disponibles viennent de l'app
+// hôte — le kit ne sait pas les lire, et n'a pas à le savoir.
+
+export interface ListeDisponible { cle: string; nom: string; champs: { cle: string; label: string; type: string }[] }
+
+function ListeInspector({ content, onChange, listes }: {
+  content: Obj; onChange: (c: Obj) => void; listes: ListeDisponible[]
+}) {
+  const set = (k: string, v: unknown) => onChange({ ...content, [k]: v })
+  const choisie = listes.find(l => l.cle === content.listeCle)
+
+  // Un champ vide = « aucun » : tous les rôles ne servent pas à toutes les
+  // listes, et forcer un choix produirait des cartes avec un sous-titre vide.
+  const selecteurChamp = (cle: string, label: string, aide?: string, filtre?: (t: string) => boolean) => (
+    <div className="insp-field">
+      <label>{label}</label>
+      {aide && <p className="insp-help">{aide}</p>}
+      <select value={(content[cle] as string) ?? ''} onChange={e => set(cle, e.target.value)} disabled={!choisie}>
+        <option value="">Aucun</option>
+        {(choisie?.champs ?? []).filter(c => !filtre || filtre(c.type)).map(c => (
+          <option key={c.cle} value={c.cle}>{c.label}</option>
+        ))}
+      </select>
+    </div>
+  )
+
+  return (
+    <div className="stack" style={{ gap: 0 }}>
+      <div className="insp-field">
+        <label>Liste à afficher</label>
+        {listes.length === 0 && (
+          <p className="insp-help">
+            Aucune liste sur ce site. Créez-en une dans l’outil « Listes » du rail, puis revenez ici.
+          </p>
+        )}
+        <select value={(content.listeCle as string) ?? ''} onChange={e => set('listeCle', e.target.value)}>
+          <option value="">Choisir…</option>
+          {listes.map(l => <option key={l.cle} value={l.cle}>{l.nom}</option>)}
+        </select>
+      </div>
+
+      <Field spec={{ key: 'titre', label: 'Titre du bloc', kind: 'text',
+        help: 'Affiché au-dessus de la liste. Laissez vide pour n’en afficher aucun.' }}
+        value={content.titre} onChange={v => set('titre', v)} />
+
+      {/* Quels champs occupent quels rôles. Une liste peut avoir douze
+          colonnes ; en montrer douze sur une carte donne un tableau. */}
+      {selecteurChamp('champTitre', 'Titre de chaque carte')}
+      {selecteurChamp('champSousTitre', 'Sous-titre')}
+      {selecteurChamp('champImage', 'Image', undefined, t => t === 'image')}
+      {selecteurChamp('champTexte', 'Texte', undefined, t => t === 'texte' || t === 'long')}
+
+      {/* Le tri vit sur le bloc : la même liste peut être montrée par prix ici
+          et par date là. */}
+      {selecteurChamp('tri', 'Trier par', 'Laissez vide pour garder l’ordre de saisie.')}
+      {content.tri ? (
+        <div className="insp-field">
+          <label>Sens</label>
+          <select value={(content.ordre as string) ?? 'croissant'} onChange={e => set('ordre', e.target.value)}>
+            <option value="croissant">Croissant</option>
+            <option value="decroissant">Décroissant</option>
+          </select>
+        </div>
+      ) : null}
+
+      <div className="insp-field">
+        <label>Nombre maximum</label>
+        <p className="insp-help">0 = toutes les entrées.</p>
+        <input type="number" min={0} value={Number(content.limite ?? 0)}
+          onChange={e => set('limite', Number(e.target.value) || 0)} />
+      </div>
+    </div>
+  )
+}
+
 /** Inspecteur d'une section — remplace le formulaire brut (SectionEditorForm)
  * par une présentation regroupée, relibellée et pliable. Mêmes props. */
-export function SectionInspector({ type, content, onChange, ImagePicker, studio, business }: {
+export function SectionInspector({ type, content, onChange, ImagePicker, studio, business, listes }: {
   type: SectionType; content: unknown; onChange: (content: unknown) => void; ImagePicker?: ImagePickerComponent
   /** Vrai dans le CMS du studio, absent dans l'éditeur client. Ouvre les
    *  natures d'élément qu'un client ne doit pas pouvoir poser. */
@@ -606,11 +684,16 @@ export function SectionInspector({ type, content, onChange, ImagePicker, studio,
   /** Coordonnées de l'organisation (draft.business), pour proposer de recopier
    *  ses réseaux au lieu de les redemander. */
   business?: Record<string, unknown>
+  /** Listes de données du site, pour le bloc « liste ». Fournies par l'app
+   *  hôte : le kit ne sait pas les lire, et n'a pas à le savoir. */
+  listes?: ListeDisponible[]
 }) {
   const c = (content as Obj) ?? {}
   return (
     <div className="insp">
-      {type === 'libre'
+      {type === 'liste'
+        ? <ListeInspector content={c} onChange={onChange} listes={listes ?? []} />
+        : type === 'libre'
         ? <LibreInspector content={c} onChange={onChange} ImagePicker={ImagePicker} studio={studio} business={business as Obj | undefined} />
         : SECTION_TYPES[type].kind === 'repeatable'
           ? <RepeatableInspector type={type} content={c} onChange={onChange} ImagePicker={ImagePicker} />

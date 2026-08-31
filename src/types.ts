@@ -42,6 +42,7 @@ export type SectionType =
   | 'moduleReviews'
   | 'form'
   | 'libre'
+  | 'liste'
 
 /** Nature d'un élément d'un bloc libre. Volontairement peu de valeurs : une
  *  palette qui enfle redevient une page blanche, et c'est justement ce qu'un

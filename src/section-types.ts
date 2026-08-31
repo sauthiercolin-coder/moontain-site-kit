@@ -382,6 +382,28 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
   // Le nombre de colonnes est une VARIANTE et non un champ : c'est une mise en
   // page, pas un contenu, et les variantes se choisissent déjà à un endroit
   // connu de l'inspecteur.
+  // Bloc « liste » : affiche une liste de données du site (biens, véhicules,
+  // références) définie dans l'outil Listes du CMS.
+  //
+  // Il RÉFÉRENCE la liste par sa clé, il n'en copie pas les entrées. Modifier
+  // une entrée doit se faire à un seul endroit — copier les données ici
+  // ramènerait le défaut qu'on a déjà corrigé deux fois, sur l'adresse de
+  // l'entreprise et sur le texte alternatif des images.
+  //
+  // Le bloc choisit AUSSI quels champs afficher. Une liste de biens peut avoir
+  // douze colonnes ; en montrer douze sur une carte donne un tableau, pas une
+  // page. On désigne donc un titre, un sous-titre, une image et un texte parmi
+  // les champs disponibles.
+  liste: {
+    key: 'liste', label: 'Liste de données', kind: 'singleton',
+    variants: [
+      { key: 'grille', label: 'Grille de cartes' },
+      { key: 'liste', label: 'Liste verticale' },
+      { key: 'bande', label: 'Bande défilante' },
+    ],
+    defaultContent: { listeCle: '', titre: '', champTitre: '', champSousTitre: '', champImage: '', champTexte: '', tri: '', ordre: 'croissant', limite: 0 },
+  },
+
   libre: {
     key: 'libre', label: 'Bloc libre', kind: 'singleton',
     variants: [
@@ -432,6 +454,22 @@ const elementLibreSchema = z.object({
 }).passthrough()
 
 const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
+  liste: z.object({
+    // Clé de la liste dans le CMS, pas ses données : le bloc référence.
+    listeCle: z.string().optional(),
+    titre: z.string().optional(),
+    // Quels champs de la liste occupent quels rôles dans la carte.
+    champTitre: z.string().optional(),
+    champSousTitre: z.string().optional(),
+    champImage: z.string().optional(),
+    champTexte: z.string().optional(),
+    // Le tri vit sur le BLOC et non sur la liste : la même liste peut être
+    // montrée par prix ici et par date là. C'est ce que les champs typés
+    // rendent possible.
+    tri: z.string().optional(),
+    ordre: z.string().optional(),
+    limite: z.number().optional(),
+  }),
   libre: z.object({
     items: z.array(elementLibreSchema).optional(),
   }),
