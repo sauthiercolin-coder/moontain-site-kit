@@ -404,6 +404,19 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { listeCle: '', titre: '', champTitre: '', champSousTitre: '', champImage: '', champTexte: '', tri: '', ordre: 'croissant', limite: 0 },
   },
 
+  // La page de liens est un bloc, pas un gabarit à part : elle hérite ainsi de
+  // l'éditeur, des versions, du contrôle avant publication et de l'aperçu, là
+  // où une page spéciale aurait tout redemandé. Ce qui la distingue tient à la
+  // page qui la porte (servie nue, sans en-tête ni pied), pas au bloc.
+  liens: {
+    key: 'liens', label: 'Page de liens', kind: 'singleton',
+    variants: [
+      { key: 'boutons', label: 'Boutons pleine largeur' },
+      { key: 'cartes', label: 'Deux colonnes' },
+    ],
+    defaultContent: { avatar: '', nom: '', baseline: '', items: [], reseaux: [], fond: '', encre: 'auto', bouton: 'plein', forme: 'pilule', pied: '' },
+  },
+
   libre: {
     key: 'libre', label: 'Bloc libre', kind: 'singleton',
     variants: [

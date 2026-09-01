@@ -1,7 +1,7 @@
 'use client'
 
 import { SECTION_TYPES } from '../section-types'
-import { ICONES_LIBRE } from '../types'
+import { ICONES_LIBRE, ICONES_LIEN } from '../types'
 import type { SectionType } from '../types'
 import type { ImagePickerComponent } from './types'
 
@@ -27,6 +27,7 @@ interface GroupSpec { title: string; fields: FieldSpec[] }
 export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   hero: 'La grande bannière en haut de la page.',
   libre: 'Des éléments à composer vous-même : titre, texte, image, bouton.',
+  liens: 'Une page de liens : logo, nom, et une pile de boutons vers vos autres adresses.',
   liste: 'Affiche une liste de données du site — biens, véhicules, références.',
   featured: 'Une réalisation mise en avant.',
   cta: "Un bloc d'appel à l'action en bas de page.",
@@ -674,6 +675,219 @@ function ListeInspector({ content, onChange, listes }: {
   )
 }
 
+/** Couleur libre, avec la possibilité de n'en choisir aucune.
+ *
+ *  Le champ vide n'est pas une couleur manquante : il veut dire « celle du
+ *  site ». C'est le bon défaut — une page de liens qui ne ressemble pas au
+ *  reste du site trahit la marque qu'elle sert — et c'est pour ça que le
+ *  bouton de remise à zéro est aussi visible que le sélecteur. */
+function ChampCouleur({ label, help, value, defaut, onChange }: {
+  label: string; help?: string; value?: string; defaut: string; onChange: (v: string) => void
+}) {
+  const pose = (value ?? '').trim()
+  return (
+    <div className="insp-field">
+      <label>{label}</label>
+      {help && <p className="insp-help">{help}</p>}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input type="color" value={pose || defaut} onChange={e => onChange(e.target.value)}
+          style={{ width: 44, height: 34, padding: 2, flex: 'none' }} />
+        <input type="text" value={pose} placeholder="Couleur du site" style={{ flex: 1, minWidth: 0 }}
+          onChange={e => onChange(e.target.value)} />
+        {pose && (
+          <button type="button" className="insp-iconbtn" title="Reprendre la couleur du site"
+            onClick={e => { e.preventDefault(); onChange('') }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4" /></svg>
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** Grille d'icônes — on choisit une icône en la voyant, pas en lisant son nom.
+ *  `aucune` est une case comme les autres : sans elle, une icône posée par
+ *  erreur ne se retire plus. */
+function GrilleIcones({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 4 }}>
+      <button type="button" title="Aucune icône" className="insp-iconbtn"
+        style={{ aspectRatio: '1', width: '100%', height: 'auto',
+          background: !value ? 'var(--accent, #4756A0)' : undefined, color: !value ? '#fff' : undefined }}
+        onClick={e => { e.preventDefault(); onChange('') }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+      </button>
+      {ICONES_LIEN.map(ic => (
+        <button key={ic.cle} type="button" title={ic.label} className="insp-iconbtn"
+          style={{ aspectRatio: '1', width: '100%', height: 'auto',
+            background: value === ic.cle ? 'var(--accent, #4756A0)' : undefined,
+            color: value === ic.cle ? '#fff' : undefined }}
+          onClick={e => { e.preventDefault(); onChange(ic.cle) }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={ic.d} /></svg>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/** Inspecteur de la page de liens.
+ *
+ *  Pourquoi un inspecteur à lui plutôt que la liste répétable générique : un
+ *  lien n'est pas qu'une ligne de champs. On veut le masquer sans le perdre,
+ *  le mettre en avant, lui poser une icône choisie à l'œil — et voir d'un coup
+ *  d'œil, dans le repli, lequel est éteint. La liste générique ne sait rien de
+ *  tout ça, et l'y apprendre l'alourdirait pour les vingt autres blocs. */
+function LiensInspector({ content, onChange, ImagePicker, business }: {
+  content: Obj; onChange: (c: Obj) => void; ImagePicker?: ImagePickerComponent; business?: Obj
+}) {
+  const items: Obj[] = Array.isArray(content?.items) ? content.items : []
+  const set = (cle: string, v: any) => onChange({ ...content, [cle]: v })
+  const commit = (next: Obj[]) => onChange({ ...content, items: next })
+  const setItem = (i: number, cle: string, v: any) => commit(items.map((x, j) => j === i ? { ...x, [cle]: v } : x))
+  const move = (i: number, d: number) => {
+    const j = i + d
+    if (j < 0 || j >= items.length) return
+    const next = items.slice(); [next[i], next[j]] = [next[j], next[i]]; commit(next)
+  }
+
+  const reseaux: Obj[] = Array.isArray(content?.reseaux) ? content.reseaux : []
+  const setReseau = (j: number, cle: string, v: any) => set('reseaux', reseaux.map((x, k) => k === j ? { ...x, [cle]: v } : x))
+  // Les comptes de l'entreprise sont déjà saisis dans les coordonnées : les
+  // redemander ici, c'est deux endroits à corriger le jour d'un changement.
+  // La clé sert d'icône quand elle en désigne une (`instagram`, `facebook`…).
+  const duSite = Object.entries((business?.social as Obj) ?? {})
+    .filter(([, v]) => typeof v === 'string' && (v as string).trim())
+    .map(([nom, href]) => ({
+      nom: nom.charAt(0).toUpperCase() + nom.slice(1), href: href as string,
+      icone: ICONES_LIEN.some(ic => ic.cle === nom.toLowerCase()) ? nom.toLowerCase() : 'site',
+    }))
+
+  // Un lien mis en avant se voit parce que les autres ne le sont pas. Au-delà
+  // de deux, la page redevient plate — on le dit plutôt que de l'interdire :
+  // c'est un jugement, pas une règle, et le refuser serait présomptueux.
+  const vedettes = items.filter(x => x.vedette).length
+
+  return (
+    <div className="stack" style={{ gap: 0 }}>
+      <details className="insp-group" open>
+        <summary><span className="insp-summary-title">En-tête</span><Caret /></summary>
+        <div className="insp-fields">
+          <Field spec={{ key: 'avatar', label: 'Image', kind: 'image',
+            help: 'Logo ou portrait, affiché en rond. Une image carrée donne le meilleur résultat.' }}
+            value={content.avatar} onChange={v => set('avatar', v)} ImagePicker={ImagePicker} />
+          <Field spec={{ key: 'nom', label: 'Nom', kind: 'text', placeholder: 'Moontain' }}
+            value={content.nom} onChange={v => set('nom', v)} />
+          <Field spec={{ key: 'baseline', label: 'Sous-titre', kind: 'text', placeholder: 'Photo · Vidéo · Web — Valais' }}
+            value={content.baseline} onChange={v => set('baseline', v)} />
+        </div>
+      </details>
+
+      <details className="insp-group" open>
+        <summary><span className="insp-summary-title">Liens</span><Caret /></summary>
+        <div className="insp-fields">
+          {items.length === 0 && <p className="muted" style={{ fontSize: 13 }}>Aucun lien pour l’instant.</p>}
+          {items.map((el, i) => (
+            <details key={i} className="insp-item" open={items.length <= 3}>
+              <summary>
+                <span className="insp-summary-title" style={{ opacity: el.masque ? 0.5 : 1 }}>
+                  {(el.libelle ?? '').toString().trim() || `Lien ${i + 1}`}
+                  {el.masque ? ' — masqué' : ''}
+                </span>
+                <span className="insp-itembar">
+                  <button type="button" className="insp-iconbtn" title="Monter" disabled={i === 0} onClick={e => { e.preventDefault(); move(i, -1) }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+                  </button>
+                  <button type="button" className="insp-iconbtn" title="Descendre" disabled={i === items.length - 1} onClick={e => { e.preventDefault(); move(i, 1) }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  </button>
+                  <button type="button" className="insp-iconbtn" title="Supprimer" onClick={e => { e.preventDefault(); commit(items.filter((_, j) => j !== i)) }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-9 0v14a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6" /></svg>
+                  </button>
+                </span>
+                <Caret />
+              </summary>
+              <div className="insp-fields">
+                <Field spec={{ key: 'libelle', label: 'Libellé', kind: 'text', placeholder: 'Prendre rendez-vous' }}
+                  value={el.libelle} onChange={v => setItem(i, 'libelle', v)} />
+                <Field spec={{ key: 'sousTitre', label: 'Deuxième ligne', kind: 'text',
+                  help: 'Optionnelle — ce qu’on trouve derrière, quand le libellé ne suffit pas.' }}
+                  value={el.sousTitre} onChange={v => setItem(i, 'sousTitre', v)} />
+                <Field spec={{ key: 'href', label: 'Destination', kind: 'text',
+                  placeholder: 'https://… , /contact, mailto:… ou tel:…' }}
+                  value={el.href} onChange={v => setItem(i, 'href', v)} />
+                <div className="insp-field">
+                  <label>Icône</label>
+                  <GrilleIcones value={el.icone as string | undefined} onChange={v => setItem(i, 'icone', v)} />
+                </div>
+                <Field spec={{ key: 'vedette', label: 'Mettre en avant', kind: 'boolean',
+                  help: vedettes > 2 ? 'Trois liens ou plus sont mis en avant : plus rien ne ressort.' : 'Le bouton prend la couleur pleine, les autres restent en contour.' }}
+                  value={el.vedette} onChange={v => setItem(i, 'vedette', v)} />
+                <Field spec={{ key: 'masque', label: 'Masquer', kind: 'boolean',
+                  help: 'Retiré de la page, gardé ici — avec son libellé et ses statistiques.' }}
+                  value={el.masque} onChange={v => setItem(i, 'masque', v)} />
+              </div>
+            </details>
+          ))}
+          <button type="button" className="insp-add" onClick={() => commit([...items, {}])}>+ Ajouter un lien</button>
+        </div>
+      </details>
+
+      <details className="insp-group">
+        <summary><span className="insp-summary-title">Réseaux (bas de page)</span><Caret /></summary>
+        <div className="insp-fields">
+          <p className="insp-help">De petites icônes sous les boutons. Ce qui compte vraiment mérite un bouton.</p>
+          {duSite.length > 0 && (
+            <button type="button" className="insp-add" style={{ marginTop: 0, marginBottom: 8 }}
+              onClick={e => { e.preventDefault(); set('reseaux', duSite) }}>
+              Reprendre ceux de l’entreprise ({duSite.length})
+            </button>
+          )}
+          {reseaux.map((r, j) => (
+            <div key={j} style={{ display: 'flex', gap: 8, alignItems: 'flex-end', marginBottom: 8 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Field spec={{ key: `rh${j}`, label: 'Adresse', kind: 'text', placeholder: 'https://…' }}
+                  value={r.href} onChange={v => setReseau(j, 'href', v)} />
+                <Field spec={{ key: `rn${j}`, label: 'Nom', kind: 'text', placeholder: 'Instagram',
+                  help: 'Lu par les lecteurs d’écran — une icône seule ne dit rien.' }}
+                  value={r.nom} onChange={v => setReseau(j, 'nom', v)} />
+                <div className="insp-field">
+                  <label>Icône</label>
+                  <GrilleIcones value={r.icone as string | undefined} onChange={v => setReseau(j, 'icone', v)} />
+                </div>
+              </div>
+              <button type="button" className="insp-iconbtn" title="Retirer"
+                onClick={e => { e.preventDefault(); set('reseaux', reseaux.filter((_, k) => k !== j)) }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+          ))}
+          <button type="button" className="insp-add" onClick={() => set('reseaux', [...reseaux, {}])}>+ Ajouter un réseau</button>
+        </div>
+      </details>
+
+      <details className="insp-group">
+        <summary><span className="insp-summary-title">Apparence</span><Caret /></summary>
+        <div className="insp-fields">
+          <ChampCouleur label="Fond" defaut="#111111" value={content.fond as string | undefined}
+            help="Vide = la couleur du site. Une page de liens qui ne lui ressemble pas trahit la marque qu’elle sert."
+            onChange={v => set('fond', v)} />
+          <Field spec={{ key: 'fondImage', label: 'Image de fond', kind: 'image',
+            help: 'Posée par-dessus la couleur, assombrie pour que le texte reste lisible.' }}
+            value={content.fondImage} onChange={v => set('fondImage', v)} ImagePicker={ImagePicker} />
+          <Choix label="Couleur du texte" value={(content.encre as string) ?? 'auto'} onChange={v => set('encre', v)}
+            options={[['auto', 'Automatique'], ['clair', 'Clair'], ['sombre', 'Sombre']]} />
+          <Choix label="Boutons" value={(content.bouton as string) ?? 'plein'} onChange={v => set('bouton', v)}
+            options={[['plein', 'Pleins'], ['contour', 'Contour'], ['verre', 'Verre dépoli']]} />
+          <Choix label="Coins" value={(content.forme as string) ?? 'pilule'} onChange={v => set('forme', v)}
+            options={[['pilule', 'Arrondis complets'], ['arrondi', 'Légèrement arrondis'], ['droit', 'Droits']]} />
+          <Field spec={{ key: 'pied', label: 'Mention en bas', kind: 'text', placeholder: '© Moontain' }}
+            value={content.pied} onChange={v => set('pied', v)} />
+        </div>
+      </details>
+    </div>
+  )
+}
+
 /** Inspecteur d'une section — remplace le formulaire brut (SectionEditorForm)
  * par une présentation regroupée, relibellée et pliable. Mêmes props. */
 export function SectionInspector({ type, content, onChange, ImagePicker, studio, business, listes }: {
@@ -693,6 +907,8 @@ export function SectionInspector({ type, content, onChange, ImagePicker, studio,
     <div className="insp">
       {type === 'liste'
         ? <ListeInspector content={c} onChange={onChange} listes={listes ?? []} />
+        : type === 'liens'
+        ? <LiensInspector content={c} onChange={onChange} ImagePicker={ImagePicker} business={business as Obj | undefined} />
         : type === 'libre'
         ? <LibreInspector content={c} onChange={onChange} ImagePicker={ImagePicker} studio={studio} business={business as Obj | undefined} />
         : SECTION_TYPES[type].kind === 'repeatable'

@@ -2,7 +2,7 @@ export * from './types'
 // `types.ts` n'exportait jusqu'ici que des types : le `export *` ci-dessus ne
 // suffit pas à faire ressortir sa première VALEUR, que les applications
 // importent alors dans le vide. On la nomme donc explicitement.
-export { ICONES_LIBRE } from './types'
+export { ICONES_LIBRE, ICONES_LIEN } from './types'
 export * from './section-types'
 export * from './rich-text'
 export * from './editors/types'
