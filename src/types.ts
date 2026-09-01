@@ -43,6 +43,7 @@ export type SectionType =
   | 'form'
   | 'libre'
   | 'liste'
+  | 'liens'
 
 /** Nature d'un élément d'un bloc libre. Volontairement peu de valeurs : une
  *  palette qui enfle redevient une page blanche, et c'est justement ce qu'un
@@ -119,6 +120,39 @@ export const ICONES_LIBRE: { cle: string; label: string; d: string }[] = [
   { cle: 'eclair',  label: 'Éclair',     d: 'M13 2 3 14h8l-1 8 10-12h-8z' },
   { cle: 'outil',   label: 'Outil',      d: 'M14.7 6.3a4 4 0 0 0 5 5l-9.4 9.4a2.8 2.8 0 0 1-4-4z' },
   { cle: 'feuille', label: 'Feuille',    d: 'M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16zM4 20c2-4 5-7 9-9' },
+]
+
+/** Icônes de la page de liens.
+ *
+ *  Une liste à part d'ICONES_LIBRE, et non son extension : le bloc libre parle
+ *  d'idées (une coche, un éclair), la page de liens parle de destinations (un
+ *  compte, une boutique, une messagerie). Mélanger les deux donnerait un menu
+ *  de trente entrées où l'on ne trouve plus ni les unes ni les autres.
+ *
+ *  Les marques sont dessinées au trait, comme le reste — pas leur logo
+ *  officiel. C'est délibéré : un logo posé à sa couleur exacte au milieu d'une
+ *  page qui a la sienne casse l'identité du site, et c'est justement ce qu'on
+ *  vend. Le tracé suffit à faire reconnaître la destination.
+ *
+ *  `d` peut contenir plusieurs sous-chemins : un cercle s'y écrit en arcs,
+ *  faute de pouvoir composer <circle> et <path> dans une seule valeur. */
+export const ICONES_LIEN: { cle: string; label: string; d: string }[] = [
+  { cle: 'instagram', label: 'Instagram', d: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zM8 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0zM17.5 6.6h.01' },
+  { cle: 'youtube',   label: 'YouTube',   d: 'M2.5 17a24 24 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49 49 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24 24 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49 49 0 0 1-16.2 0A2 2 0 0 1 2.5 17zM10 9l5 3-5 3z' },
+  { cle: 'linkedin',  label: 'LinkedIn',  d: 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2zM2 4a2 2 0 1 0 4 0 2 2 0 1 0-4 0z' },
+  { cle: 'facebook',  label: 'Facebook',  d: 'M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z' },
+  { cle: 'whatsapp',  label: 'WhatsApp',  d: 'M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z' },
+  { cle: 'note',      label: 'Note de musique', d: 'M9 18V5l12-2v13M3 18a3 3 0 1 0 6 0 3 3 0 1 0-6 0zM15 16a3 3 0 1 0 6 0 3 3 0 1 0-6 0z' },
+  { cle: 'site',      label: 'Site web',  d: 'M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0zM2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z' },
+  { cle: 'photo',     label: 'Photo',     d: 'M3 6h4l2-3h6l2 3h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zM8 13a4 4 0 1 0 8 0 4 4 0 1 0-8 0z' },
+  { cle: 'video',     label: 'Vidéo',     d: 'M2 7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM15 10l7-4v12l-7-4z' },
+  { cle: 'boutique',  label: 'Boutique',  d: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M8 10a4 4 0 0 0 8 0' },
+  { cle: 'agenda',    label: 'Rendez-vous', d: 'M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM3 10h18M8 2v4m8-4v4' },
+  { cle: 'mail',      label: 'E-mail',    d: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm18 3-10 6L2 7' },
+  { cle: 'tel',       label: 'Téléphone', d: 'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z' },
+  { cle: 'lieu',      label: 'Itinéraire', d: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z' },
+  { cle: 'document',  label: 'Document',  d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5' },
+  { cle: 'lien',      label: 'Lien',      d: 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7' },
 ]
 
 export interface SectionInstance<T = unknown> {
@@ -388,6 +422,53 @@ export interface RepeatableContent<T> {
   items: T[]
 }
 
+/** Un lien de la page de liens. Tout est optionnel : un lien à peine posé
+ *  doit pouvoir exister avant d'être rempli, comme partout ailleurs. */
+export interface LienItem {
+  libelle?: string
+  /** Deuxième ligne, plus petite. Sert à dire ce qu'on trouve derrière quand
+   *  le libellé ne suffit pas (« Instagram » → « Les images de la semaine »). */
+  sousTitre?: string
+  href?: string
+  /** Clé dans ICONES_LIEN. Absente = pas d'icône, le bouton reste du texte. */
+  icone?: string
+  /** Masqué sans être supprimé : un lien saisonnier revient chaque année, et
+   *  le retirer ferait perdre son libellé, son icône et son compte de clics. */
+  masque?: boolean
+  /** Mis en avant : le bouton prend la couleur pleine du site quand les autres
+   *  sont en contour. Une page où tout est mis en avant ne met rien en avant,
+   *  l'inspecteur le rappelle. */
+  vedette?: boolean
+}
+
+/** Contenu du bloc « page de liens ».
+ *
+ *  Le bloc porte son propre fond et sa propre encre, alors que partout ailleurs
+ *  c'est le gabarit qui décide : une page de liens est presque toujours servie
+ *  nue (sans en-tête ni pied), donc elle est seule à l'écran et n'a rien dont
+ *  hériter. Sans ces champs, elle prendrait le blanc par défaut du navigateur. */
+export interface LiensContent {
+  /** Image ronde en haut — logo ou portrait. */
+  avatar?: string
+  nom?: string
+  baseline?: string
+  items?: LienItem[]
+  /** Petits liens d'icônes en bas de page (réseaux sociaux). Séparés des
+   *  boutons : ce sont des destinations secondaires, et les empiler avec le
+   *  reste noierait ce qu'on veut vraiment faire cliquer. */
+  reseaux?: { icone?: string; href?: string; nom?: string }[]
+  /** Fond de la page : couleur, puis image par-dessus si les deux sont là. */
+  fond?: string
+  fondImage?: string
+  /** Couleur du texte. 'auto' la déduit de la clarté du fond — ce qui suffit
+   *  presque toujours, sauf sur une image de fond dont on ne sait rien. */
+  encre?: 'auto' | 'clair' | 'sombre'
+  bouton?: 'plein' | 'contour' | 'verre'
+  forme?: 'pilule' | 'arrondi' | 'droit'
+  /** Petit texte tout en bas (mentions, année). */
+  pied?: string
+}
+
 export type SectionContent =
   | HeroContent
   | FeaturedContent
@@ -415,3 +496,4 @@ export type SectionContent =
   | MapContent
   | StoryContent
   | BookingContent
+  | LiensContent
