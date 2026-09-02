@@ -151,6 +151,20 @@ export const ICONES_LIEN: { cle: string; label: string; d: string }[] = [
   { cle: 'mail',      label: 'E-mail',    d: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm18 3-10 6L2 7' },
   { cle: 'tel',       label: 'Téléphone', d: 'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z' },
   { cle: 'lieu',      label: 'Itinéraire', d: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0zm-8 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z' },
+  // Nature et montagne. Elles ne sont pas décoratives : un guide, un
+  // photographe de montagne ou un hébergeur nomme ses liens par ce qu'il y a
+  // au bout — « Les sorties de l'hiver », « Le chalet » — et une icône de
+  // marque ou de document ne dit rien de tout ça.
+  { cle: 'montagne',  label: 'Montagne',  d: 'm8 3 4 8 5-5 5 15H2Z' },
+  { cle: 'sommet',    label: 'Sommet enneigé', d: 'm8 3 4 8 5-5 5 15H2Z M4.1 15.1c2.6-1.6 5.2-1.4 7.9.4 2.7 1.9 5.5 2 8.2.2' },
+  { cle: 'sapin',     label: 'Forêt',     d: 'M12 3 6 12h3l-4 6h14l-4-6h3zM12 18v3' },
+  { cle: 'feuille',   label: 'Feuille',   d: 'M11 20A7 7 0 0 1 4 13c0-6 7-9 16-9 0 9-3 16-9 16zM4 20c2-4 5-7 9-9' },
+  { cle: 'lac',       label: 'Lac',       d: 'M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 1.3 0 1.9-.5 2.5-1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 1.3 0 1.9-.5 2.5-1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 1.3 0 1.9-.5 2.5-1' },
+  { cle: 'soleil',    label: 'Soleil',    d: 'M8 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0zM12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4' },
+  { cle: 'flocon',    label: 'Neige',     d: 'M12 2v20M3.4 7l17.2 10M20.6 7 3.4 17M12 6.5 9.4 5m2.6 1.5L14.6 5M12 17.5 9.4 19m2.6-1.5 2.6 1.5' },
+  { cle: 'tente',     label: 'Bivouac',   d: 'M3.5 21 14 3m6.5 18L10 3M15.5 21 12 15l-3.5 6M2 21h20' },
+  { cle: 'chalet',    label: 'Chalet',    d: 'm3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10' },
+  { cle: 'boussole',  label: 'Boussole',  d: 'M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0zM16.2 7.8l-2.9 6.6-6.6 2.9 2.9-6.6z' },
   { cle: 'document',  label: 'Document',  d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5' },
   { cle: 'lien',      label: 'Lien',      d: 'M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7' },
 ]
