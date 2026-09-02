@@ -453,6 +453,39 @@ export interface LienItem {
    *  sont en contour. Une page où tout est mis en avant ne met rien en avant,
    *  l'inspecteur le rappelle. */
   vedette?: boolean
+  /** Nature du bouton.
+   *
+   *  `vcard` enregistre le contact dans le téléphone de qui appuie — la fiche
+   *  est construite à partir des coordonnées déjà saisies, donc ce bouton n'a
+   *  pas de destination à remplir. C'est le geste qu'un QR code de carte de
+   *  visite devrait permettre : on scanne, on appuie, le numéro est rangé.
+   *
+   *  Absent = un lien ordinaire. */
+  nature?: 'lien' | 'vcard'
+  /** Fenêtre d'affichage, en AAAA-MM-JJ, bornes comprises. Vide = pas de borne.
+   *
+   *  Un lien saisonnier — l'expo de l'été, les dates de la saison — apparaît et
+   *  disparaît tout seul. Sans ça, il faut penser à le masquer le bon jour, et
+   *  c'est exactement ce qu'on oublie. */
+  debut?: string
+  fin?: string
+}
+
+/** L'épingle : une carte en tête de page, au-dessus des boutons.
+ *
+ *  Pourquoi elle n'est pas un lien de plus : sur une pile de boutons, tout a le
+ *  même poids sauf la couleur, et il n'y a qu'une couleur. L'épingle donne un
+ *  format différent — une image, un titre, deux phrases — à la seule chose qui
+ *  compte en ce moment : l'expo en cours, la série de l'hiver. Elle est unique,
+ *  et c'est ce qui la rend visible. */
+export interface EpingleLiens {
+  image?: string
+  titre?: string
+  texte?: string
+  /** Libellé du bouton de la carte. Sans lui, la carte entière reste cliquable
+   *  si `href` est rempli. */
+  bouton?: string
+  href?: string
 }
 
 /** Contenu du bloc « page de liens ».
@@ -467,6 +500,8 @@ export interface LiensContent {
   nom?: string
   baseline?: string
   items?: LienItem[]
+  /** La carte mise en tête, au-dessus des boutons. Absente = rien. */
+  epingle?: EpingleLiens
   /** Petits liens d'icônes en bas de page (réseaux sociaux). Séparés des
    *  boutons : ce sont des destinations secondaires, et les empiler avec le
    *  reste noierait ce qu'on veut vraiment faire cliquer. */
