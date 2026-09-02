@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef, useState } from 'react'
 import { SECTION_TYPES } from '../section-types'
 import { ICONES_LIBRE, ICONES_LIEN } from '../types'
 import type { SectionType } from '../types'
@@ -750,6 +751,26 @@ function LiensInspector({ content, onChange, ImagePicker, business }: {
     const next = items.slice(); [next[i], next[j]] = [next[j], next[i]]; commit(next)
   }
 
+  // Glisser-déposer pour réordonner. L'ordre des boutons EST le contenu d'une
+  // page de liens — ce qu'on veut faire cliquer se met en haut — et le régler
+  // à coups de flèches, un cran à la fois, sur huit liens, revient à compter
+  // au lieu de composer.
+  //
+  // Les flèches restent : le glisser-déposer n'existe pas au clavier, et une
+  // liste qu'on ne peut réordonner qu'à la souris est une liste que certains
+  // ne peuvent pas réordonner. Même geste que les pages du CMS.
+  const glisse = useRef<number | null>(null)
+  const [survol, setSurvol] = useState<number | null>(null)
+  const deposer = (vers: number) => {
+    const de = glisse.current
+    glisse.current = null; setSurvol(null)
+    if (de === null || de === vers) return
+    const next = items.slice()
+    const [x] = next.splice(de, 1)
+    next.splice(vers, 0, x)
+    commit(next)
+  }
+
   const reseaux: Obj[] = Array.isArray(content?.reseaux) ? content.reseaux : []
   const setReseau = (j: number, cle: string, v: any) => set('reseaux', reseaux.map((x, k) => k === j ? { ...x, [cle]: v } : x))
   // Les comptes de l'entreprise sont déjà saisis dans les coordonnées : les
@@ -787,8 +808,21 @@ function LiensInspector({ content, onChange, ImagePicker, business }: {
         <div className="insp-fields">
           {items.length === 0 && <p className="muted" style={{ fontSize: 13 }}>Aucun lien pour l’instant.</p>}
           {items.map((el, i) => (
-            <details key={i} className="insp-item" open={items.length <= 3}>
-              <summary>
+            <details key={i} className="insp-item" open={items.length <= 3}
+              style={survol === i ? { borderTop: '2px solid var(--accent, #4756A0)' } : undefined}>
+              <summary
+                draggable
+                onDragStart={() => { glisse.current = i }}
+                onDragOver={e => { e.preventDefault(); if (glisse.current !== null && glisse.current !== i) setSurvol(i) }}
+                onDrop={e => { e.preventDefault(); deposer(i) }}
+                onDragEnd={() => { glisse.current = null; setSurvol(null) }}>
+                {/* La poignée ne porte pas le geste — c'est le résumé entier qui
+                    est saisissable — mais elle le montre. Sans elle, personne
+                    n'essaie de glisser une ligne. */}
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                  aria-hidden="true" style={{ flex: 'none', opacity: .45, cursor: 'grab', marginRight: 2 }}>
+                  <path d="M9 5h.01M9 12h.01M9 19h.01M15 5h.01M15 12h.01M15 19h.01" />
+                </svg>
                 <span className="insp-summary-title" style={{ opacity: el.masque ? 0.5 : 1 }}>
                   {(el.libelle ?? '').toString().trim() || `Lien ${i + 1}`}
                   {el.masque ? ' — masqué' : ''}
