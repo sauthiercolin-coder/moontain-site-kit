@@ -738,6 +738,42 @@ function GrilleIcones({ value, onChange }: { value?: string; onChange: (v: strin
  *  le mettre en avant, lui poser une icône choisie à l'œil — et voir d'un coup
  *  d'œil, dans le repli, lequel est éteint. La liste générique ne sait rien de
  *  tout ça, et l'y apprendre l'alourdirait pour les vingt autres blocs. */
+/** Un vrai sélecteur de date, propre à la programmation des liens.
+ *
+ *  Le `kind: 'date'` commun rend un champ texte, et il est partagé avec le
+ *  compte à rebours — qui stocke une heure en plus du jour — et avec la date
+ *  d'un article, souvent écrite à la main (« juin 2026 »). Lui poser un
+ *  `<input type="date">` viderait l'un et tronquerait l'autre : ces valeurs ne
+ *  sont pas toutes des dates au sens du navigateur. Ici on sait que si. */
+function ChampDate({ label, help, value, onChange }: {
+  label: string; help?: string; value?: string; onChange: (v: string) => void
+}) {
+  return (
+    <div className="insp-field">
+      <label>{label}</label>
+      {help && <p className="insp-help">{help}</p>}
+      <input type="date" value={(value ?? '').trim()} onChange={e => onChange(e.target.value)} />
+    </div>
+  )
+}
+
+/** Ce qu'un lien programmé affiche dans son repli : « à partir du 12.06 »,
+ *  « terminé ». Sans ça, un lien invisible sur la page a l'air d'un bug — on
+ *  ne voit pas ses dates tant qu'on ne l'a pas déplié. */
+function etatLien(el: Obj): string {
+  const debut = (el.debut ?? '').toString().trim()
+  const fin = (el.fin ?? '').toString().trim()
+  if (!debut && !fin) return ''
+  // Comparaison de chaînes AAAA-MM-JJ : l'ordre lexical est l'ordre
+  // chronologique, et ça évite un fuseau horaire dans un panneau d'édition.
+  const jour = new Date().toLocaleDateString('sv-SE')
+  const joli = (d: string) => d.split('-').reverse().slice(0, 2).join('.')
+  if (fin && jour > fin) return ' — terminé'
+  if (debut && jour < debut) return ` — à partir du ${joli(debut)}`
+  if (fin) return ` — jusqu’au ${joli(fin)}`
+  return ''
+}
+
 function LiensInspector({ content, onChange, ImagePicker, business }: {
   content: Obj; onChange: (c: Obj) => void; ImagePicker?: ImagePickerComponent; business?: Obj
 }) {
@@ -771,6 +807,9 @@ function LiensInspector({ content, onChange, ImagePicker, business }: {
     commit(next)
   }
 
+  const epingle: Obj = (content?.epingle && typeof content.epingle === 'object') ? content.epingle : {}
+  const setEpingle = (cle: string, v: any) => set('epingle', { ...epingle, [cle]: v })
+
   const reseaux: Obj[] = Array.isArray(content?.reseaux) ? content.reseaux : []
   const setReseau = (j: number, cle: string, v: any) => set('reseaux', reseaux.map((x, k) => k === j ? { ...x, [cle]: v } : x))
   // Les comptes de l'entreprise sont déjà saisis dans les coordonnées : les
@@ -803,6 +842,28 @@ function LiensInspector({ content, onChange, ImagePicker, business }: {
         </div>
       </details>
 
+      <details className="insp-group">
+        <summary><span className="insp-summary-title">Épingle (en tête)</span><Caret /></summary>
+        <div className="insp-fields">
+          <p className="insp-help">
+            Une carte au-dessus des boutons, pour la seule chose qui compte en ce moment.
+            Sur une pile de boutons tout a le même poids : c’est le format différent qui la fait voir.
+            Laissez vide pour n’en afficher aucune.
+          </p>
+          <Field spec={{ key: 'ep-image', label: 'Image', kind: 'image' }}
+            value={epingle.image} onChange={v => setEpingle('image', v)} ImagePicker={ImagePicker} />
+          <Field spec={{ key: 'ep-titre', label: 'Titre', kind: 'text', placeholder: 'Exposition en cours' }}
+            value={epingle.titre} onChange={v => setEpingle('titre', v)} />
+          <Field spec={{ key: 'ep-texte', label: 'Texte', kind: 'textarea' }}
+            value={epingle.texte} onChange={v => setEpingle('texte', v)} />
+          <Field spec={{ key: 'ep-href', label: 'Destination', kind: 'text', placeholder: 'https://… ou /contact' }}
+            value={epingle.href} onChange={v => setEpingle('href', v)} />
+          <Field spec={{ key: 'ep-bouton', label: 'Libellé du bouton', kind: 'text',
+            help: 'Vide : la carte entière reste cliquable si une destination est indiquée.' }}
+            value={epingle.bouton} onChange={v => setEpingle('bouton', v)} />
+        </div>
+      </details>
+
       <details className="insp-group" open>
         <summary><span className="insp-summary-title">Liens</span><Caret /></summary>
         <div className="insp-fields">
@@ -823,9 +884,9 @@ function LiensInspector({ content, onChange, ImagePicker, business }: {
                   aria-hidden="true" style={{ flex: 'none', opacity: .45, cursor: 'grab', marginRight: 2 }}>
                   <path d="M9 5h.01M9 12h.01M9 19h.01M15 5h.01M15 12h.01M15 19h.01" />
                 </svg>
-                <span className="insp-summary-title" style={{ opacity: el.masque ? 0.5 : 1 }}>
+                <span className="insp-summary-title" style={{ opacity: el.masque || etatLien(el) ? 0.5 : 1 }}>
                   {(el.libelle ?? '').toString().trim() || `Lien ${i + 1}`}
-                  {el.masque ? ' — masqué' : ''}
+                  {el.masque ? ' — masqué' : etatLien(el)}
                 </span>
                 <span className="insp-itembar">
                   <button type="button" className="insp-iconbtn" title="Monter" disabled={i === 0} onClick={e => { e.preventDefault(); move(i, -1) }}>
@@ -846,9 +907,19 @@ function LiensInspector({ content, onChange, ImagePicker, business }: {
                 <Field spec={{ key: 'sousTitre', label: 'Deuxième ligne', kind: 'text',
                   help: 'Optionnelle — ce qu’on trouve derrière, quand le libellé ne suffit pas.' }}
                   value={el.sousTitre} onChange={v => setItem(i, 'sousTitre', v)} />
-                <Field spec={{ key: 'href', label: 'Destination', kind: 'text',
-                  placeholder: 'https://… , /contact, mailto:… ou tel:…' }}
-                  value={el.href} onChange={v => setItem(i, 'href', v)} />
+                <Choix label="Nature" value={(el.nature as string) ?? 'lien'} onChange={v => setItem(i, 'nature', v)}
+                  options={[['lien', 'Un lien'], ['vcard', 'Enregistrer mon contact']]} />
+                {el.nature === 'vcard' ? (
+                  <p className="insp-help">
+                    Ce bouton range vos coordonnées dans le téléphone du visiteur. La fiche est
+                    construite à partir de celles déjà saisies dans « Entreprise » — rien à remplir ici,
+                    et rien à corriger deux fois le jour où votre numéro change.
+                  </p>
+                ) : (
+                  <Field spec={{ key: 'href', label: 'Destination', kind: 'text',
+                    placeholder: 'https://… , /contact, mailto:… ou tel:…' }}
+                    value={el.href} onChange={v => setItem(i, 'href', v)} />
+                )}
                 <div className="insp-field">
                   <label>Icône</label>
                   <GrilleIcones value={el.icone as string | undefined} onChange={v => setItem(i, 'icone', v)} />
@@ -859,6 +930,13 @@ function LiensInspector({ content, onChange, ImagePicker, business }: {
                 <Field spec={{ key: 'masque', label: 'Masquer', kind: 'boolean',
                   help: 'Retiré de la page, gardé ici — avec son libellé et ses statistiques.' }}
                   value={el.masque} onChange={v => setItem(i, 'masque', v)} />
+                {/* Deux dates plutôt qu'un rappel dans l'agenda : le lien de la
+                    saison apparaît et disparaît seul, et c'est précisément le
+                    jour du retrait qu'on oublie. Bornes comprises. */}
+                <ChampDate label="Afficher à partir du" help="Vide : dès maintenant."
+                  value={el.debut as string | undefined} onChange={v => setItem(i, 'debut', v)} />
+                <ChampDate label="Jusqu’au" help="Vide : sans fin. Le jour indiqué est inclus."
+                  value={el.fin as string | undefined} onChange={v => setItem(i, 'fin', v)} />
               </div>
             </details>
           ))}
