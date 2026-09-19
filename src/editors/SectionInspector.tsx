@@ -56,6 +56,9 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleMembership: "L'adhésion (abonnement), intégrée dans la page.",
   moduleReviews: 'Le mur d\'avis en direct (avis approuvés), intégré dans la page.',
   form: 'Un formulaire (choisi parmi ceux du CMS) intégré dans la page.',
+  moduleArdoise: "L'ardoise du jour du restaurant, programmée dans l'écran Carte.",
+  moduleEmporter: 'La commande à emporter : plats de la carte, créneau de retrait, paiement.',
+  moduleGroupe: 'La demande de repas de groupe ou de privatisation, en quelques étapes.',
 }
 
 // En-tête commun aux blocs « module » (titre + texte d'intro au-dessus du widget).
@@ -150,6 +153,14 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
   // Le choix du formulaire (formId) est géré par un sélecteur dédié côté CMS ;
   // ici on ne montre que l'en-tête optionnel en repli.
   form: MODULE_HEADER_SPEC,
+  moduleArdoise: [
+    ...MODULE_HEADER_SPEC,
+    { title: 'Affichage', fields: [
+      { key: 'semaine', label: 'Montrer toute la semaine', help: 'Décoché : seul le jour en cours est affiché.', kind: 'boolean' },
+    ] },
+  ],
+  moduleEmporter: MODULE_HEADER_SPEC,
+  moduleGroupe: MODULE_HEADER_SPEC,
 }
 
 // Formats d'image proposés (recadrage uniforme d'une section, non destructif).

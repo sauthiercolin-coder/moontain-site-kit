@@ -357,6 +357,22 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleReviews', label: 'Module — Avis', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Ils nous ont fait confiance', intro: '' },
   },
+  // Blocs « restaurant » : trois widgets de plus, sur le même principe. L'ardoise
+  // n'est pas un formulaire : c'est le menu du jour, programmé dans le CMS par
+  // jour de semaine, que le bloc affiche tel quel. Les deux autres appellent
+  // l'API du CMS, comme la réservation de table.
+  moduleArdoise: {
+    key: 'moduleArdoise', label: 'Module — Ardoise du jour', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Ardoise du jour', intro: '' },
+  },
+  moduleEmporter: {
+    key: 'moduleEmporter', label: 'Module — Commande à emporter', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'À l’emporter', intro: '' },
+  },
+  moduleGroupe: {
+    key: 'moduleGroupe', label: 'Module — Groupes et privatisation', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Groupes et privatisation', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -577,6 +593,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   moduleGiftcard: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   moduleMembership: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   moduleReviews: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  // `semaine` : afficher les sept jours plutôt que le seul jour en cours.
+  moduleArdoise: z.object({ title: z.string().optional(), intro: z.string().optional(), semaine: z.boolean().optional() }),
+  moduleEmporter: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  moduleGroupe: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
 
