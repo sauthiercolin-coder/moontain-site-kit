@@ -4,6 +4,8 @@ export * from './types'
 // importent alors dans le vide. On la nomme donc explicitement.
 export { ICONES_LIBRE, ICONES_LIEN } from './types'
 export * from './section-types'
+export * from './horaires'
+export * from './feries-suisses'
 export * from './rich-text'
 export * from './editors/types'
 export { RepeatableListEditor } from './editors/RepeatableListEditor'

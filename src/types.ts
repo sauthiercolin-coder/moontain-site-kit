@@ -43,6 +43,7 @@ export type SectionType =
   | 'moduleArdoise'
   | 'moduleEmporter'
   | 'moduleGroupe'
+  | 'moduleHoraires'
   | 'form'
   | 'libre'
   | 'liste'
