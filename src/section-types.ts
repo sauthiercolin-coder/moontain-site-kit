@@ -529,6 +529,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     footerLeft: z.string().optional(),
     footerRight: z.string().optional(),
     ratio: z.string().optional(),
+    // L'état d'ouverture en direct dans la bannière (« Ouvert · jusqu'à 17h »),
+    // tiré des horaires de l'entreprise. Absent = non affiché : aucun site
+    // existant ne change.
+    showHours: z.boolean().optional(),
   }),
   featured: z.object({
     name: z.string().optional(),

@@ -85,6 +85,9 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
       { key: 'image', label: 'Image principale', help: 'Format paysage recommandé.', kind: 'image' },
       { key: 'images', label: 'Autres images', help: 'Images supplémentaires (diaporama selon le modèle).', kind: 'imagelist' },
     ] },
+    { title: 'Horaires', fields: [
+      { key: 'showHours', label: 'Afficher l’état d’ouverture', help: '« Ouvert · jusqu’à 17h », tiré des horaires de l’entreprise. Dans le bas de la bannière, sur le gabarit Intrio.', kind: 'boolean' },
+    ] },
   ],
   featured: [
     { title: 'Réalisation', fields: [
