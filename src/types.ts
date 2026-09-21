@@ -343,10 +343,18 @@ export interface VideoContent {
 }
 
 export interface MapContent {
+  eyebrow?: string
   title?: string
   /** Autonome : ne dépend pas de business.address pour rester déplaçable/
    * désactivable indépendamment de la section Contact. */
   address?: string
+  text?: string
+  /** Téléphone du lieu (un bureau parmi plusieurs), distinct de business.phone. */
+  phone?: string
+  /** Coordonnées du point : nombre en base, chaîne si saisies dans un champ
+   * texte. À valider avant usage (vide, 0, hors bornes). */
+  lat?: number | string
+  lng?: number | string
 }
 
 export interface StoryContent {
