@@ -373,6 +373,18 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleGroupe', label: 'Module — Groupes et privatisation', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Groupes et privatisation', intro: '' },
   },
+  // Horaires d'ouverture : l'état en direct (« ouvert », « ferme dans 40 min »),
+  // la semaine type, et les jours particuliers à venir. Les horaires eux-mêmes
+  // vivent dans l'écran Horaires du CMS, pas dans le bloc : un établissement
+  // n'a qu'une semaine, quel que soit le nombre de pages qui la montrent.
+  moduleHoraires: {
+    key: 'moduleHoraires', label: 'Horaires d’ouverture', kind: 'singleton',
+    variants: [
+      { key: 'complet', label: 'État, semaine et jours particuliers' },
+      { key: 'compact', label: 'Compact : l’état et le jour même' },
+    ],
+    defaultContent: { title: 'Horaires', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -517,6 +529,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     footerLeft: z.string().optional(),
     footerRight: z.string().optional(),
     ratio: z.string().optional(),
+    // L'état d'ouverture en direct dans la bannière (« Ouvert · jusqu'à 17h »),
+    // tiré des horaires de l'entreprise. Absent = non affiché : aucun site
+    // existant ne change.
+    showHours: z.boolean().optional(),
   }),
   featured: z.object({
     name: z.string().optional(),
@@ -597,6 +613,14 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   moduleArdoise: z.object({ title: z.string().optional(), intro: z.string().optional(), semaine: z.boolean().optional() }),
   moduleEmporter: z.object({ title: z.string().optional(), intro: z.string().optional() }),
   moduleGroupe: z.object({ title: z.string().optional(), intro: z.string().optional() }),
+  // Absent = affiché : un bloc posé sans réglage montre tout.
+  moduleHoraires: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+    showStatus: z.boolean().optional(),
+    showWeek: z.boolean().optional(),
+    showSpecial: z.boolean().optional(),
+  }),
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
 

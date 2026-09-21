@@ -59,6 +59,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleArdoise: "L'ardoise du jour du restaurant, programmée dans l'écran Carte.",
   moduleEmporter: 'La commande à emporter : plats de la carte, créneau de retrait, paiement.',
   moduleGroupe: 'La demande de repas de groupe ou de privatisation, en quelques étapes.',
+  moduleHoraires: 'Les horaires d’ouverture, avec l’état en direct : ouvert, fermé, ferme bientôt.',
 }
 
 // En-tête commun aux blocs « module » (titre + texte d'intro au-dessus du widget).
@@ -83,6 +84,9 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
     { title: 'Image de fond', fields: [
       { key: 'image', label: 'Image principale', help: 'Format paysage recommandé.', kind: 'image' },
       { key: 'images', label: 'Autres images', help: 'Images supplémentaires (diaporama selon le modèle).', kind: 'imagelist' },
+    ] },
+    { title: 'Horaires', fields: [
+      { key: 'showHours', label: 'Afficher l’état d’ouverture', help: '« Ouvert · jusqu’à 17h », tiré des horaires de l’entreprise. Dans le bas de la bannière, sur le gabarit Intrio.', kind: 'boolean' },
     ] },
   ],
   featured: [
@@ -161,6 +165,14 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
   ],
   moduleEmporter: MODULE_HEADER_SPEC,
   moduleGroupe: MODULE_HEADER_SPEC,
+  moduleHoraires: [
+    ...MODULE_HEADER_SPEC,
+    { title: 'Ce que le bloc affiche', fields: [
+      { key: 'showStatus', label: 'L’état en direct', help: '« Ouvert · jusqu’à 18h », « Ferme dans 40 min ».', kind: 'boolean', defaultOn: true },
+      { key: 'showWeek', label: 'La semaine', help: 'Le jour même est mis en évidence.', kind: 'boolean', defaultOn: true },
+      { key: 'showSpecial', label: 'Les jours particuliers à venir', help: 'Jours fériés, vacances, horaires exceptionnels du mois.', kind: 'boolean', defaultOn: true },
+    ] },
+  ],
 }
 
 // Formats d'image proposés (recadrage uniforme d'une section, non destructif).
