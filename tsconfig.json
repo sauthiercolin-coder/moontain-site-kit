@@ -11,5 +11,5 @@
     "noEmit": true,
     "declaration": false
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }

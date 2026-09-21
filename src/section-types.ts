@@ -576,9 +576,23 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     poster: z.string().optional(),
     ratio: z.string().optional(),
   }),
+  // Ce schéma ne déclarait que `title` et `address`. Or un objet zod sans
+  // .passthrough() retire sans erreur ce qu'il ne connaît pas : au premier
+  // enregistrement d'un bloc Carte dans le CMS, `lat`, `lng` et `phone`
+  // disparaissaient. Les bureaux de Fiduciaire Roh y perdaient leur point
+  // sur la carte (gabarits intrio, form, hoteru) et leur téléphone.
+  // `eyebrow` et `text` sont lus par le gabarit intrio. Relevé en base le
+  // 21.09.2026 : les 14 blocs Carte ne portent que title, address, lat, lng,
+  // phone et _style (ce dernier ajouté pour tous les types, plus bas).
   map: z.object({
+    eyebrow: z.string().optional(),
     title: z.string().optional(),
     address: z.string().optional(),
+    text: z.string().optional(),
+    phone: z.string().optional(),
+    // Nombre en base ; chaîne si la valeur vient d'un champ texte.
+    lat: z.union([z.number(), z.string()]).optional(),
+    lng: z.union([z.number(), z.string()]).optional(),
   }),
   story: z.object({
     eyebrow: z.string().optional(),
