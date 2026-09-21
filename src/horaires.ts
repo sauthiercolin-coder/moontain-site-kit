@@ -333,8 +333,10 @@ export function phraseEtat(
     const ecart = Math.round((Date.parse(`${m.date}T12:00:00Z`) - Date.parse(`${date}T12:00:00Z`)) / 864e5)
     const jourNom = (fr ? JOURS_FR : JOURS_EN)[jourDeSemaine(m.date)]
     if (ecart < 7) return fr ? `${jourNom.toLowerCase()} à ${h(m)}` : `${jourNom} at ${h(m)}`
+    // Au-delà d'une semaine, le jour et l'heure restent utiles : « Ouvre le
+    // lundi 28 septembre à 8h », pas seulement « le 28 septembre ».
     const d = new Intl.DateTimeFormat(fr ? 'fr-CH' : 'en-CH', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${m.date}T12:00:00Z`))
-    return fr ? `le ${d}` : `on ${d}`
+    return fr ? `le ${jourNom.toLowerCase()} ${d.replace(/^1 /, '1er ')} à ${h(m)}` : `on ${jourNom} ${d} at ${h(m)}`
   }
   const duree = (min: number) => {
     if (min <= 60) return `${min} min`
