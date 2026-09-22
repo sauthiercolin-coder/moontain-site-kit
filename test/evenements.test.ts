@@ -317,6 +317,9 @@ describe('libellés', () => {
   it('journée entière, premier du mois, passage de minuit', () => {
     expect(lisible(libelleOccurrence(occ({ du: '2026-10-01' })))).toBe('jeu. 1er oct.')
     expect(lisible(libelleOccurrence(occ({ du: '2026-10-03', deHeure: '22:00', aHeure: '00:00' })))).toBe('sam. 3 oct. · 22 h – minuit')
+    // En début, « minuit » se lirait la nuit suivante : 24 h trop tard.
+    expect(lisible(libelleOccurrence(occ({ du: '2026-10-25', deHeure: '00:00', aHeure: '04:00' })))).toBe('dim. 25 oct. · 0 h – 4 h')
+    expect(lisible(libelleOccurrence(occ({ du: '2026-10-24', au: '2026-10-26', deHeure: '00:00', aHeure: '00:00' })))).toBe('sam. 24 oct., 0 h – lun. 26 oct., minuit')
     expect(lisible(libelleOccurrence(occ({ du: '2026-10-03', deHeure: '22:00', aHeure: '02:00' })))).toBe('sam. 3 oct. · 22 h – 2 h')
   })
 
@@ -443,6 +446,9 @@ describe('iCalendar', () => {
     const l = lignesDe(ics)
     expect(l).toContain('STATUS:CANCELLED')
     expect(l).toContain('SUMMARY:Annulé · Concert')
+    const en = lignesDe(genererIcs({ ...base, langue: 'en', evenements: [evt({ dates: [occ({ id: 'a', du: '2026-10-03', statut: 'annule' }), occ({ id: 'b', du: '2026-10-10', statut: 'reporte' })] })] }))
+    expect(en).toContain('SUMMARY:Cancelled · Concert')
+    expect(en).toContain('SUMMARY:Postponed · Concert')
     expect(l).toContain('STATUS:CONFIRMED')
     expect(l).toContain('SUMMARY:Concert')
   })

@@ -420,9 +420,13 @@ export function lieuDeLEvenement(
  *  ligne, ce qui arrive vite dans une carte étroite. */
 const NB = '\u00a0'
 
-function heureCourte(hhmm: string, langue: LangueCalendrier): string {
+/** « 19 h 30 », « 22 h ». Minuit ne se dit « minuit » qu'en heure de fin :
+ *  « dim. 25 oct. · minuit » se lit la nuit de dimanche à lundi, alors que
+ *  l'événement commence la nuit de samedi à dimanche — on arriverait 24 h
+ *  trop tard. En début, « 0 h ». */
+function heureCourte(hhmm: string, langue: LangueCalendrier, fin = false): string {
   if (langue === 'en') return hhmm
-  if (hhmm === '00:00') return 'minuit'
+  if (hhmm === '00:00') return fin ? 'minuit' : `0${NB}h`
   const [h, m] = hhmm.split(':')
   return m === '00' ? `${Number(h)}${NB}h` : `${Number(h)}${NB}h${NB}${m}`
 }
@@ -454,18 +458,19 @@ export function libelleOccurrence(o: Occurrence, langue: LangueCalendrier = 'fr'
   const au = o.au && o.au > o.du ? o.au : null
   const tiret = `${NB}– `
   const h = (x: string) => heureCourte(x, langue)
+  const hFin = (x: string) => heureCourte(x, langue, true)
 
   if (!au) {
     const jour = jourCourt(o.du, langue, { annee: options.annee })
     if (!deH) return jour
-    return `${jour} · ${h(deH)}${aH ? `${tiret}${h(aH)}` : ''}`
+    return `${jour} · ${h(deH)}${aH ? `${tiret}${hFin(aH)}` : ''}`
   }
 
   const memeAnnee = o.du.slice(0, 4) === au.slice(0, 4)
   const anneeFin = !!options.annee || !memeAnnee
   if (deH) {
     const gauche = `${jourCourt(o.du, langue, { annee: !memeAnnee })}, ${h(deH)}`
-    const droite = `${jourCourt(au, langue, { annee: anneeFin })}${aH ? `, ${h(aH)}` : ''}`
+    const droite = `${jourCourt(au, langue, { annee: anneeFin })}${aH ? `, ${hFin(aH)}` : ''}`
     return `${gauche}${tiret}${droite}`
   }
   if (o.du.slice(0, 7) === au.slice(0, 7)) {
@@ -575,6 +580,14 @@ export interface OptionsIcs {
   depuis?: string | null
   /** Le site lui-même, pour un événement sans lieu (voir lieuDeLEvenement). */
   lieuParDefaut?: { nom?: string | null; adresse?: string | null }
+  /** Langue du site : celle des mentions ajoutées au titre (« Annulé · »,
+   *  « Cancelled · »). Le contenu, lui, reste tel que saisi. */
+  langue?: LangueCalendrier
+}
+
+const MENTIONS_ICS: Record<LangueCalendrier, { annule: string; reporte: string; sansTitre: string }> = {
+  fr: { annule: 'Annulé · ', reporte: 'Reporté · ', sansTitre: 'Événement' },
+  en: { annule: 'Cancelled · ', reporte: 'Postponed · ', sansTitre: 'Event' },
 }
 
 /** Le fichier .ics d'un agenda (le flux d'abonnement) ou d'un seul événement.
@@ -592,6 +605,7 @@ export interface OptionsIcs {
 export function genererIcs(options: OptionsIcs): string {
   const domaine = domaineDe(options.domaine)
   const stamp = utcIcs(options.maintenant.getTime())
+  const mentions = MENTIONS_ICS[options.langue === 'en' ? 'en' : 'fr']
   const entete = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -619,7 +633,7 @@ export function genererIcs(options: OptionsIcs): string {
     // Google n'affiche pas la propriété URL : l'adresse de la fiche est aussi
     // dans la description, où elle devient un lien.
     const description = [propre(e.resume), urlSure].filter(Boolean).join('\n\n')
-    const titre = propre(e.titre) ?? 'Événement'
+    const titre = propre(e.titre) ?? mentions.sansTitre
     const categorie = propre(e.categorie)
 
     // Normaliser encore ne coûte rien (c'est idempotent) et garantit ce dont
@@ -630,7 +644,7 @@ export function genererIcs(options: OptionsIcs): string {
       if (options.depuis && fin < options.depuis) continue
       const b = bornesOccurrence(o)
       const uid = `${idEvt}-${o.id}@${domaine}`
-      const prefixe = o.statut === 'annule' ? 'Annulé · ' : o.statut === 'reporte' ? 'Reporté · ' : ''
+      const prefixe = o.statut === 'annule' ? mentions.annule : o.statut === 'reporte' ? mentions.reporte : ''
       const lignes = [
         'BEGIN:VEVENT',
         `UID:${uid}`,
