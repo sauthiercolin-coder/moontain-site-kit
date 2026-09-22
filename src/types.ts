@@ -44,6 +44,7 @@ export type SectionType =
   | 'moduleEmporter'
   | 'moduleGroupe'
   | 'moduleHoraires'
+  | 'moduleAgenda'
   | 'form'
   | 'libre'
   | 'liste'
@@ -414,6 +415,19 @@ export interface DealItem {
 export interface BookingContent {
   title?: string
   image?: string
+}
+
+/** Bloc « Prochains événements » : un en-tête et deux réglages. Les
+ *  événements eux-mêmes vivent dans l'outil Événements, pas dans le bloc —
+ *  un agenda se tient à un seul endroit, quel que soit le nombre de pages qui
+ *  le montrent. */
+export interface AgendaContent {
+  title?: string
+  intro?: string
+  /** Seulement cette catégorie, comparée sans casse ni accents. Absente : toutes. */
+  categorie?: string
+  /** Combien d'événements : 3 si absent, de 1 à 12 (voir nombreAgenda). */
+  nombre?: number
 }
 
 /** Bien immobilier (template agence immobilière) : carte avec statut, prix,
