@@ -622,7 +622,10 @@ export function genererIcs(options: OptionsIcs): string {
     const titre = propre(e.titre) ?? 'Événement'
     const categorie = propre(e.categorie)
 
-    for (const o of e.dates) {
+    // Normaliser encore ne coûte rien (c'est idempotent) et garantit ce dont
+    // l'UID dépend : des dates valides, chacune avec un identifiant stable,
+    // même si l'appelant a passé la colonne jsonb telle que la base la rend.
+    for (const o of normaliserOccurrences(e.dates)) {
       const fin = dernierJour(o)
       if (options.depuis && fin < options.depuis) continue
       const b = bornesOccurrence(o)

@@ -430,6 +430,14 @@ describe('iCalendar', () => {
     expect(uid()).toBe(uid())
   })
 
+  it('tient des dates brutes, telles que la base les rend', () => {
+    const brut = { ...evt(), dates: [{ du: '2026-10-03', deHeure: '20h' }, { du: 'jamais' }] } as unknown as Evenement
+    const l = lignesDe(genererIcs({ ...base, evenements: [brut] }))
+    expect(l.filter(x => x.startsWith('UID:'))).toHaveLength(1)
+    expect(l.find(x => x.startsWith('UID:'))).toMatch(/^UID:e1-o-[0-9a-z]+@www\.melezes\.ch$/)
+    expect(l).toContain('DTSTART:20261003T180000Z')
+  })
+
   it('une date annulée reste, en STATUS:CANCELLED, et son titre le dit', () => {
     const ics = genererIcs({ ...base, evenements: [evt({ dates: [occ({ id: 'a', du: '2026-10-03', statut: 'annule' }), occ({ id: 'b', du: '2026-10-10' })] })] })
     const l = lignesDe(ics)
