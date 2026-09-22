@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { SECTION_TYPES } from '../section-types'
+import { NOMBRE_AGENDA } from '../evenements'
 import { ICONES_LIBRE, ICONES_LIEN } from '../types'
 import type { SectionType } from '../types'
 import type { ImagePickerComponent } from './types'
@@ -13,7 +14,7 @@ import type { ImagePickerComponent } from './types'
 // fournis par l'app hôte (voir globals.css / site-editor.css).
 
 type Obj = Record<string, any>
-type Kind = 'text' | 'textarea' | 'image' | 'date' | 'boolean' | 'imagelist'
+type Kind = 'text' | 'textarea' | 'image' | 'date' | 'boolean' | 'imagelist' | 'nombre'
 interface FieldSpec {
   key: string; label: string; help?: string; kind: Kind; placeholder?: string
   /**
@@ -22,6 +23,11 @@ interface FieldSpec {
    * l'ajout de l'option apparaîtrait décochée alors que le site l'affiche.
    */
   defaultOn?: boolean
+  /** Champs nombre uniquement : bornes, appliquées dès la saisie. Le schéma
+   *  refuse un nombre hors bornes ; mieux vaut ne jamais en écrire un que
+   *  refuser l'enregistrement du bloc entier. */
+  min?: number
+  max?: number
 }
 interface GroupSpec { title: string; fields: FieldSpec[] }
 
@@ -60,6 +66,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleEmporter: 'La commande à emporter : plats de la carte, créneau de retrait, paiement.',
   moduleGroupe: 'La demande de repas de groupe ou de privatisation, en quelques étapes.',
   moduleHoraires: 'Les horaires d’ouverture, avec l’état en direct : ouvert, fermé, ferme bientôt.',
+  moduleAgenda: 'Les prochains événements de l’agenda, saisis dans l’outil Événements.',
 }
 
 // En-tête commun aux blocs « module » (titre + texte d'intro au-dessus du widget).
@@ -173,6 +180,13 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
       { key: 'showSpecial', label: 'Les jours particuliers à venir', help: 'Jours fériés, vacances, horaires exceptionnels du mois.', kind: 'boolean', defaultOn: true },
     ] },
   ],
+  moduleAgenda: [
+    ...MODULE_HEADER_SPEC,
+    { title: 'Événements affichés', fields: [
+      { key: 'nombre', label: 'Nombre d’événements', help: `Les plus proches d’abord. ${NOMBRE_AGENDA.defaut} par défaut, jusqu’à ${NOMBRE_AGENDA.max}.`, kind: 'nombre', min: NOMBRE_AGENDA.min, max: NOMBRE_AGENDA.max, placeholder: String(NOMBRE_AGENDA.defaut) },
+      { key: 'categorie', label: 'Catégorie', help: 'Seulement les événements de cette catégorie, écrite comme dans l’agenda. Vide : toutes.', kind: 'text' },
+    ] },
+  ],
 }
 
 // Formats d'image proposés (recadrage uniforme d'une section, non destructif).
@@ -197,10 +211,23 @@ const Caret = () => (
   <svg className="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
 )
 
-function FieldInput({ kind, value, placeholder, defaultOn, onChange, ImagePicker }: {
-  kind: Kind; value: any; placeholder?: string; defaultOn?: boolean
+/** Un nombre saisi, ramené dans ses bornes. Le champ vidé rend undefined : la
+ *  clé disparaît du contenu, et le rendu reprend sa valeur par défaut. */
+function bornerNombre(v: string, min?: number, max?: number): number | undefined {
+  if (!v.trim()) return undefined
+  const n = Math.round(Number(v))
+  if (!Number.isFinite(n)) return undefined
+  return Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n))
+}
+
+function FieldInput({ kind, value, placeholder, defaultOn, min, max, onChange, ImagePicker }: {
+  kind: Kind; value: any; placeholder?: string; defaultOn?: boolean; min?: number; max?: number
   onChange: (v: any) => void; ImagePicker?: ImagePickerComponent
 }) {
+  if (kind === 'nombre') return (
+    <input type="number" inputMode="numeric" step={1} min={min} max={max} value={value ?? ''} placeholder={placeholder}
+      onChange={e => onChange(bornerNombre(e.target.value, min, max))} />
+  )
   if (kind === 'textarea') return <textarea rows={3} value={value ?? ''} placeholder={placeholder} onChange={e => onChange(e.target.value)} />
   if (kind === 'boolean') return (
     <label className="insp-check"><input type="checkbox" checked={value ?? defaultOn ?? false} onChange={e => onChange(e.target.checked)} /> Oui</label>
@@ -219,7 +246,7 @@ function Field({ spec, value, onChange, ImagePicker }: {
     <div className="insp-field">
       <label>{spec.label}</label>
       {spec.help && <p className="insp-help">{spec.help}</p>}
-      <FieldInput kind={spec.kind} value={value} placeholder={spec.placeholder} defaultOn={spec.defaultOn} onChange={onChange} ImagePicker={ImagePicker} />
+      <FieldInput kind={spec.kind} value={value} placeholder={spec.placeholder} defaultOn={spec.defaultOn} min={spec.min} max={spec.max} onChange={onChange} ImagePicker={ImagePicker} />
     </div>
   )
 }

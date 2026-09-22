@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { SectionType } from './types'
 import { CHAMPS_RICHES, cleRiche, richTextSchema } from './rich-text'
+import { NOMBRE_AGENDA } from './evenements'
 
 export interface RepeatableFieldConfig {
   key: string
@@ -385,6 +386,16 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     ],
     defaultContent: { title: 'Horaires', intro: '' },
   },
+  // Les prochains événements de l'agenda, avec un lien vers l'agenda complet
+  // (le module monté). Comme les horaires, les données vivent ailleurs — dans
+  // l'outil Événements — et le bloc ne porte que son en-tête et deux réglages.
+  // Le nombre est un vrai champ (1 à 12) plutôt que des variantes « 3 » et
+  // « 6 » : une variante est une mise en page, et deux sources pour un même
+  // nombre finiraient par se contredire.
+  moduleAgenda: {
+    key: 'moduleAgenda', label: 'Agenda — prochains événements', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Prochains événements', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -634,6 +645,15 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     showStatus: z.boolean().optional(),
     showWeek: z.boolean().optional(),
     showSpecial: z.boolean().optional(),
+  }),
+  // Absent = toutes les catégories, NOMBRE_AGENDA.defaut événements. Le
+  // nombre hors bornes est refusé ici ; l'inspecteur le borne dès la saisie,
+  // et le rendu le borne encore (nombreAgenda) pour un contenu plus ancien.
+  moduleAgenda: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+    categorie: z.string().optional(),
+    nombre: z.number().int().min(NOMBRE_AGENDA.min).max(NOMBRE_AGENDA.max).optional(),
   }),
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
