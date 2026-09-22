@@ -246,6 +246,29 @@ export function bornesOccurrence(o: Occurrence): { debut: Date; fin: Date; journ
   return { debut: new Date(debut), fin: new Date(fin), journee: !deH }
 }
 
+/** Jusqu'à quand une date se vend en ligne.
+ *
+ *  - À heure précise, sur un jour : jusqu'au début — le concert commence, la
+ *    vente en ligne s'arrête (la caisse du soir prend le relais).
+ *  - Sans heure (une journée entière), ou sur plusieurs jours (une exposition,
+ *    un festival) : jusqu'à la fin de la date. Arrêter la vente à 0 h le
+ *    premier jour fermait une exposition de deux mois dès son ouverture.
+ *
+ *  La même règle, écrite en SQL, fixe `ticket_sessions.fin_vente` (migration
+ *  386) : la base refuse la vente passé cet instant, la fiche cesse de
+ *  proposer « Réserver ». */
+export function finDeVente(o: Occurrence): Date {
+  const { debut, fin, journee } = bornesOccurrence(o)
+  const plusieursJours = !!o.au && o.au > o.du
+  return journee || plusieursJours ? fin : debut
+}
+
+/** La date se vend-elle encore en ligne : pas annulée, reportée ni complète
+ *  (statut posé à la main), et avant sa fin de vente. */
+export function venteOuverte(o: Occurrence, maintenant: Date): boolean {
+  return !o.statut && maintenant.getTime() < finDeVente(o).getTime()
+}
+
 export type EtatOccurrence = 'a-venir' | 'en-cours' | 'passe'
 
 export function etatOccurrence(o: Occurrence, maintenant: Date): EtatOccurrence {

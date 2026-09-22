@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   bornesOccurrence, categoriesDe, cleCategorie, datesSchemaOrg, derniereDate, echapperTexteIcs,
-  estPasse, etatOccurrence, evenementsAVenir, evenementsPasses, genererIcs, isoZurich, jourCourt,
+  estPasse, etatOccurrence, evenementsAVenir, evenementsPasses, finDeVente, genererIcs, isoZurich, jourCourt,
   libelleOccurrence, lieuDeLEvenement, MAX_OCCURRENCES, nombreAgenda, normaliserEvenement,
-  normaliserOccurrences, occurrencesDuMois, prochaineOccurrence, recentOuAVenir, replierLigneIcs,
+  normaliserOccurrences, occurrencesDuMois, prochaineOccurrence, recentOuAVenir, replierLigneIcs, venteOuverte,
   type Evenement, type Occurrence, type OptionsIcs,
 } from '../src/evenements'
 
@@ -505,5 +505,27 @@ describe('iCalendar', () => {
 
   it('échappement : barre oblique inverse d’abord, retours chariot normalisés, contrôles retirés', () => {
     expect(echapperTexteIcs('a\\b;c,d\r\ne\rfg')).toBe('a\\\\b\\;c\\,d\\ne\\nfg')
+  })
+})
+
+describe('finDeVente, venteOuverte', () => {
+  const Z = (iso: string) => new Date(iso)
+  it('à heure précise, sur un jour : jusqu’au début (20 h à Zurich, heure d’été = 18 h UTC)', () => {
+    expect(finDeVente(occ({ du: '2026-10-03', deHeure: '20:00', aHeure: '22:00' })).toISOString()).toBe('2026-10-03T18:00:00.000Z')
+  })
+  it('sans heure : jusqu’à la fin du jour (minuit suivant à Zurich)', () => {
+    expect(finDeVente(occ({ du: '2026-10-03' })).toISOString()).toBe('2026-10-03T22:00:00.000Z')
+  })
+  it('sur plusieurs jours : jusqu’à la fin — une exposition se vend tant qu’elle dure', () => {
+    expect(finDeVente(occ({ du: '2026-09-10', au: '2027-01-10' })).toISOString()).toBe('2027-01-10T23:00:00.000Z')
+    expect(finDeVente(occ({ du: '2026-10-02', au: '2026-10-04', deHeure: '10:00', aHeure: '18:00' })).toISOString()).toBe('2026-10-04T16:00:00.000Z')
+  })
+  it('venteOuverte : avant la fin de vente, et sans statut', () => {
+    const expo = occ({ du: '2026-09-10', au: '2027-01-10' })
+    expect(venteOuverte(expo, Z('2026-10-01T12:00:00Z'))).toBe(true)
+    expect(venteOuverte({ ...expo, statut: 'complet' }, Z('2026-10-01T12:00:00Z'))).toBe(false)
+    const concert = occ({ du: '2026-10-03', deHeure: '20:00' })
+    expect(venteOuverte(concert, Z('2026-10-03T17:59:00Z'))).toBe(true)
+    expect(venteOuverte(concert, Z('2026-10-03T18:00:00Z'))).toBe(false)
   })
 })
