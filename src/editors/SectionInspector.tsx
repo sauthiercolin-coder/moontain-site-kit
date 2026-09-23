@@ -68,6 +68,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleHoraires: 'Les horaires d’ouverture, avec l’état en direct : ouvert, fermé, ferme bientôt.',
   moduleAgenda: 'Les prochains événements de l’agenda, saisis dans l’outil Événements.',
   moduleFidelite: 'La carte de fidélité du commerce : le client la demande, la reçoit par courriel, et la montre au comptoir.',
+  moduleEmploi: 'Les postes ouverts. Chaque offre a sa page, et on postule avec son CV.',
 }
 
 // En-tête commun aux blocs « module » (titre + texte d'intro au-dessus du widget).

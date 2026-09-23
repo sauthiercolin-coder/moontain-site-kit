@@ -46,6 +46,7 @@ export type SectionType =
   | 'moduleHoraires'
   | 'moduleAgenda'
   | 'moduleFidelite'
+  | 'moduleEmploi'
   | 'form'
   | 'libre'
   | 'liste'
