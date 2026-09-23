@@ -396,6 +396,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleAgenda', label: 'Agenda — prochains événements', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Prochains événements', intro: '' },
   },
+  moduleFidelite: {
+    key: 'moduleFidelite', label: 'Fidélité — carte du commerce', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Carte de fidélité', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -654,6 +658,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     intro: z.string().optional(),
     categorie: z.string().optional(),
     nombre: z.number().int().min(NOMBRE_AGENDA.min).max(NOMBRE_AGENDA.max).optional(),
+  }),
+  moduleFidelite: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
   }),
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
