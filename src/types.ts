@@ -47,6 +47,7 @@ export type SectionType =
   | 'moduleAgenda'
   | 'moduleFidelite'
   | 'moduleEmploi'
+  | 'moduleRappel'
   | 'form'
   | 'libre'
   | 'liste'
