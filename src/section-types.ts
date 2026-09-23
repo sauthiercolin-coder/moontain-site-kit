@@ -404,6 +404,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleEmploi', label: 'Emploi — postes ouverts', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Nous recrutons', intro: '' },
   },
+  moduleRappel: {
+    key: 'moduleRappel', label: 'Rappel — on vous rappelle', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'On vous rappelle', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -668,6 +672,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     intro: z.string().optional(),
   }),
   moduleEmploi: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+  }),
+  moduleRappel: z.object({
     title: z.string().optional(),
     intro: z.string().optional(),
   }),
