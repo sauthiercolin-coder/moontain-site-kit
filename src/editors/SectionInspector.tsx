@@ -70,6 +70,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleFidelite: 'La carte de fidélité du commerce : le client la demande, la reçoit par courriel, et la montre au comptoir.',
   moduleEmploi: 'Les postes ouverts. Chaque offre a sa page, et on postule avec son CV.',
   moduleRappel: 'Le visiteur laisse son numéro et choisit quand être rappelé, parmi vos heures d’ouverture.',
+  moduleBiens: 'Vos derniers biens à vendre ou à louer, avec un lien vers la recherche complète.',
 }
 
 // En-tête commun aux blocs « module » (titre + texte d'intro au-dessus du widget).
