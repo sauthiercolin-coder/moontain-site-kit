@@ -48,6 +48,7 @@ export type SectionType =
   | 'moduleFidelite'
   | 'moduleEmploi'
   | 'moduleRappel'
+  | 'moduleBiens'
   | 'form'
   | 'libre'
   | 'liste'
