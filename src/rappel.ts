@@ -89,26 +89,24 @@ function moities(plages: Plage[]): { cle: 'matin' | 'apres_midi'; debut: number;
 const libelleMoitie = (cle: 'matin' | 'apres_midi', lang: LangueHoraires): string =>
   lang === 'fr' ? (cle === 'matin' ? 'matin' : 'après-midi') : (cle === 'matin' ? 'morning' : 'afternoon')
 
-/** Les créneaux à proposer, dans l'ordre. Le premier est toujours « dès que
- *  possible » : sa phrase dit la vérité du moment — tout de suite si c'est
- *  ouvert, sinon à la prochaine ouverture. */
-export function creneauxDeRappel(
+/** Les demi-journées d'ouverture à venir, dans l'ordre. Le rappel s'en sert
+ *  après « dès que possible », la visite d'un bien s'en sert seule — avec un
+ *  délai plus long, parce qu'on ne fait pas visiter un appartement dans le
+ *  quart d'heure.
+ *
+ *  `delaiMinimal` est en minutes, compté depuis maintenant. */
+export function creneauxDates(
   h: Horaires | null | undefined,
   instant: Date = new Date(),
-  o: OptionsCreneaux = {},
+  o: OptionsCreneaux & { delaiMinimal?: number; entier?: boolean } = {},
 ): CreneauRappel[] {
   const lang = o.langue ?? 'fr'
-  const nombre = Math.max(1, Math.min(8, o.nombre ?? 3))
-  const horizon = Math.max(1, Math.min(21, o.horizon ?? 14))
+  const nombre = Math.max(1, Math.min(12, o.nombre ?? 3))
+  const horizon = Math.max(1, Math.min(30, o.horizon ?? 14))
+  const delai = Math.max(0, o.delaiMinimal ?? DELAI_MINIMAL)
   const { date: aujourdhui, minutes } = maintenantZurich(instant)
 
-  const desQuePossible: CreneauRappel = {
-    cle: 'des_que_possible',
-    texte: lang === 'fr' ? 'Dès que possible' : 'As soon as possible',
-  }
-
-  // Sans horaires déclarés, on ne sait rien : un seul choix, honnête.
-  if (!h || !(h.semaine ?? []).length) return [desQuePossible]
+  if (!h || !(h.semaine ?? []).length) return []
 
   const jour = calendrier(h)
   const dates: CreneauRappel[] = []
@@ -118,9 +116,16 @@ export function creneauxDeRappel(
     if (!j.plages.length) continue
     for (const m of moities(j.plages)) {
       if (dates.length >= nombre) break
-      // Aujourd'hui, un créneau déjà commencé compte s'il reste du temps ;
-      // déjà fini, il ne compte pas.
-      const depart = n === 0 ? Math.max(m.debut, minutes + DELAI_MINIMAL) : m.debut
+      // Le plus tôt qu'on puisse honorer, en minutes de CE jour-là. Le délai
+      // peut dépasser la journée : il se reporte alors sur les suivantes.
+      const auPlusTot = minutes + delai - n * 24 * 60
+      // Deux lectures du délai, et le choix dépend de ce qu'on promet.
+      // Un rappel se case dans la demi-journée : un créneau déjà entamé reste
+      // bon s'il reste du temps. Une visite occupe le créneau qu'elle
+      // annonce : « demain matin (8h–12h) » doit être honorable DÈS 8 h,
+      // sinon le texte promet plus que la règle ne permet.
+      if (o.entier && m.debut < auPlusTot) continue
+      const depart = o.entier ? m.debut : Math.max(m.debut, auPlusTot)
       if (m.fin - depart < DUREE_MINIMALE) continue
       const quand = nomDuJour(date, aujourdhui, lang)
       const plage = `${heureLisible(String(Math.floor(m.debut / 60)).padStart(2, '0') + ':' + String(m.debut % 60).padStart(2, '0'), lang)}–${heureLisible(String(Math.floor(m.fin / 60)).padStart(2, '0') + ':' + String(m.fin % 60).padStart(2, '0'), lang)}`
@@ -132,7 +137,24 @@ export function creneauxDeRappel(
     }
   }
 
-  return [desQuePossible, ...dates]
+  return dates
+}
+
+/** Les créneaux à proposer pour un rappel. Le premier est toujours « dès que
+ *  possible » : sa phrase dit la vérité du moment — tout de suite si c'est
+ *  ouvert, sinon à la prochaine ouverture. */
+export function creneauxDeRappel(
+  h: Horaires | null | undefined,
+  instant: Date = new Date(),
+  o: OptionsCreneaux = {},
+): CreneauRappel[] {
+  const lang = o.langue ?? 'fr'
+  const desQuePossible: CreneauRappel = {
+    cle: 'des_que_possible',
+    texte: lang === 'fr' ? 'Dès que possible' : 'As soon as possible',
+  }
+  // Sans horaires déclarés, on ne sait rien : un seul choix, honnête.
+  return [desQuePossible, ...creneauxDates(h, instant, { ...o, delaiMinimal: DELAI_MINIMAL })]
 }
 
 /** Le créneau que le visiteur dit avoir choisi, retrouvé parmi ceux qu'on
