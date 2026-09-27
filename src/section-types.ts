@@ -416,6 +416,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleTelechargement', label: 'Document — à télécharger', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'À télécharger', intro: '' },
   },
+  moduleFil: {
+    key: 'moduleFil', label: 'Instagram — le fil', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Sur Instagram', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -694,6 +698,13 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
   moduleTelechargement: z.object({
     title: z.string().optional(),
     intro: z.string().optional(),
+  }),
+  moduleFil: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+    /** Combien de vignettes. Douze par défaut : trois rangées de quatre sur un
+     *  écran large, six rangées de deux sur un téléphone. */
+    limite: z.number().optional(),
   }),
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }

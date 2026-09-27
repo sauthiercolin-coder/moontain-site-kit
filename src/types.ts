@@ -49,6 +49,7 @@ export type SectionType =
   | 'moduleEmploi'
   | 'moduleRappel'
   | 'moduleTelechargement'
+  | 'moduleFil'
   | 'moduleBiens'
   | 'form'
   | 'libre'
