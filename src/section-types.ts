@@ -412,6 +412,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleBiens', label: 'Biens — derniers biens', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Nos biens', intro: '' },
   },
+  moduleTelechargement: {
+    key: 'moduleTelechargement', label: 'Document — à télécharger', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'À télécharger', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -684,6 +688,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     intro: z.string().optional(),
   }),
   moduleBiens: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+  }),
+  moduleTelechargement: z.object({
     title: z.string().optional(),
     intro: z.string().optional(),
   }),
