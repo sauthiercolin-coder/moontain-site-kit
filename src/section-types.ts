@@ -420,6 +420,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleFil', label: 'Instagram — le fil', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Sur Instagram', intro: '' },
   },
+  moduleEcheance: {
+    key: 'moduleEcheance', label: 'Rappel — échéance à venir', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Je veux être prévenu', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -705,6 +709,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     /** Combien de vignettes. Douze par défaut : trois rangées de quatre sur un
      *  écran large, six rangées de deux sur un téléphone. */
     limite: z.number().optional(),
+  }),
+  moduleEcheance: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
   }),
   form: z.object({ formId: z.string().optional(), title: z.string().optional(), intro: z.string().optional() }),
 }
