@@ -432,6 +432,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'modulePhoto', label: 'Devis — montrez-nous en photo', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Montrez-nous, on vous rappelle', intro: '' },
   },
+  moduleEnvies: {
+    key: 'moduleEnvies', label: 'Liste d’envies — à partager', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Votre liste d’envies', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -727,6 +731,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     intro: z.string().optional(),
   }),
   modulePhoto: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+  }),
+  moduleEnvies: z.object({
     title: z.string().optional(),
     intro: z.string().optional(),
   }),
