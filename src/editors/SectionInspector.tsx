@@ -73,6 +73,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleTelechargement: 'Vos documents, offerts contre une adresse. Le lien part par courriel : l’adresse doit exister.',
   moduleEcheance: 'Le visiteur choisit son échéance — un contrôle, un service, un forfait — et vous le lui rappelez le jour venu. Les types de rappel se règlent dans « Échéances ».',
   moduleDepot: 'Vos clients déposent leurs pièces ici plutôt que par courriel. Les fichiers ne sont lisibles que depuis votre écran. L’adresse d’avis et les objets proposés se règlent dans « Dépôts ».',
+  modulePhoto: 'Le visiteur photographie ce qu’il veut faire réparer ou rénover, et vous le rappelez. La demande arrive dans « Demandes », avec les photos.',
   moduleFil: 'Une grille de visuels qui mène à votre profil Instagram. Vous la posez vous-même : elle ne dépend d’aucun jeton qui expire.',
   moduleBiens: 'Vos derniers biens à vendre ou à louer, avec un lien vers la recherche complète.',
 }
