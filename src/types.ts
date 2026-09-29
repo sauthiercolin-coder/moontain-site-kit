@@ -52,6 +52,7 @@ export type SectionType =
   | 'moduleFil'
   | 'moduleEcheance'
   | 'moduleDepot'
+  | 'modulePhoto'
   | 'moduleBiens'
   | 'form'
   | 'libre'
