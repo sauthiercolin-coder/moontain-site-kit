@@ -71,6 +71,7 @@ export const SECTION_HELP: Partial<Record<SectionType, string>> = {
   moduleEmploi: 'Les postes ouverts. Chaque offre a sa page, et on postule avec son CV.',
   moduleRappel: 'Le visiteur laisse son numéro et choisit quand être rappelé, parmi vos heures d’ouverture.',
   moduleTelechargement: 'Vos documents, offerts contre une adresse. Le lien part par courriel : l’adresse doit exister.',
+  moduleEcheance: 'Le visiteur choisit son échéance — un contrôle, un service, un forfait — et vous le lui rappelez le jour venu. Les types de rappel se règlent dans « Échéances ».',
   moduleFil: 'Une grille de visuels qui mène à votre profil Instagram. Vous la posez vous-même : elle ne dépend d’aucun jeton qui expire.',
   moduleBiens: 'Vos derniers biens à vendre ou à louer, avec un lien vers la recherche complète.',
 }

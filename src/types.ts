@@ -50,6 +50,7 @@ export type SectionType =
   | 'moduleRappel'
   | 'moduleTelechargement'
   | 'moduleFil'
+  | 'moduleEcheance'
   | 'moduleBiens'
   | 'form'
   | 'libre'
