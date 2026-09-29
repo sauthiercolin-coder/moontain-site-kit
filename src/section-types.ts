@@ -811,8 +811,16 @@ export function sectionContentSchema(type: SectionType): z.ZodTypeAny {
   // Mêmes raisons pour les clés riches (`textRich`…) que pour _style : sans
   // déclaration ici, elles seraient retirées à l'enregistrement. Les éléments
   // répétables (items[]) sont déjà en .passthrough(), ils n'en ont pas besoin.
+  //
+  // `.passthrough()` sur la section elle-même, pour la même raison : le
+  // schéma d'un bloc répétable ne déclare que `items` et `ratio`, or les
+  // gabarits lisent aussi `eyebrow`, `title`, `text` (en-tête de section),
+  // `text2`, des boutons… posés par script ou par un bloc enregistré. Toucher
+  // un seul texte du bloc les effaçait tous, et l'éditeur client, qui publie
+  // dans la foulée, les effaçait en ligne (29.09.2026). Les clés déclarées
+  // restent validées ; les autres passent telles quelles.
   return base instanceof z.ZodObject
-    ? base.extend({ _style: blockStyleSchema, _focal: focalSchema, ...CLES_RICHES_SCHEMA })
+    ? base.extend({ _style: blockStyleSchema, _focal: focalSchema, ...CLES_RICHES_SCHEMA }).passthrough()
     : base
 }
 
