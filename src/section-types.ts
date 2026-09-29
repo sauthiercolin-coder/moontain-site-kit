@@ -424,6 +424,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     key: 'moduleEcheance', label: 'Rappel — échéance à venir', kind: 'singleton', variants: DEFAULT_VARIANT,
     defaultContent: { title: 'Je veux être prévenu', intro: '' },
   },
+  moduleDepot: {
+    key: 'moduleDepot', label: 'Dépôt — vos documents', kind: 'singleton', variants: DEFAULT_VARIANT,
+    defaultContent: { title: 'Déposer vos documents', intro: '' },
+  },
   // Bloc « Formulaire » : référence un formulaire (défini dans le CMS) par son id.
   // L'en-tête (titre/intro) est optionnel ; les champs viennent du formulaire.
   form: {
@@ -711,6 +715,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     limite: z.number().optional(),
   }),
   moduleEcheance: z.object({
+    title: z.string().optional(),
+    intro: z.string().optional(),
+  }),
+  moduleDepot: z.object({
     title: z.string().optional(),
     intro: z.string().optional(),
   }),
