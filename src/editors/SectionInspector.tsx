@@ -96,11 +96,18 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
     ] },
     { title: 'Boutons', fields: [
       { key: 'cta', label: 'Bouton principal', kind: 'text' },
+      { key: 'ctaHref', label: 'Lien du bouton principal', help: 'Une page du site (ex. /contact) ou une adresse complète. Sans lien, certains gabarits n’affichent pas le bouton.', kind: 'text' },
       { key: 'cta2', label: 'Bouton secondaire', kind: 'text' },
+      { key: 'cta2Href', label: 'Lien du bouton secondaire', kind: 'text' },
     ] },
     { title: 'Image de fond', fields: [
       { key: 'image', label: 'Image principale', help: 'Format paysage recommandé.', kind: 'image' },
       { key: 'images', label: 'Autres images', help: 'Images supplémentaires (diaporama selon le modèle).', kind: 'imagelist' },
+    ] },
+    { title: 'Bas de bannière', fields: [
+      { key: 'footerLeft', label: 'Mot-clé 1', help: 'Trois courtes mentions en pied de bannière, sur le gabarit Intrio (ex. « Depuis 1981 »). Vides : rien.', kind: 'text' },
+      { key: 'subline', label: 'Mot-clé 2', kind: 'text' },
+      { key: 'footerRight', label: 'Mot-clé 3', kind: 'text' },
     ] },
     { title: 'Horaires', fields: [
       { key: 'showHours', label: 'Afficher l’état d’ouverture', help: '« Ouvert · jusqu’à 17h », tiré des horaires de l’entreprise. Dans le bas de la bannière, sur le gabarit Intrio.', kind: 'boolean' },
@@ -115,15 +122,28 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
   ],
   cta: [
     { title: "Appel à l'action", fields: [
+      { key: 'eyebrow', label: 'Petit texte au-dessus du titre', kind: 'text' },
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'text', label: 'Texte', kind: 'textarea' },
+    ] },
+    { title: 'Boutons', fields: [
       { key: 'button', label: 'Libellé du bouton', kind: 'text' },
+      { key: 'buttonHref', label: 'Lien du bouton', help: 'Une page du site (ex. /contact) ou une adresse complète. Sans lien, certains gabarits n’affichent pas le bouton.', kind: 'text' },
+      { key: 'button2', label: 'Second bouton (optionnel)', kind: 'text' },
+      { key: 'button2Href', label: 'Lien du second bouton', kind: 'text' },
     ] },
   ],
   contact: [
     { title: 'Contact', fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
-      { key: 'subtitle', label: 'Sous-titre', kind: 'textarea' },
+      { key: 'subtitle', label: 'Sous-titre', help: 'Le formulaire de ce bloc est celui du site (ses envois arrivent dans « Demandes »). Pour un formulaire sur mesure, posez un bloc « Formulaire » et choisissez la mise en page « Coordonnées seules ».', kind: 'textarea' },
+    ] },
+    { title: 'Coordonnées', fields: [
+      { key: 'address', label: 'Adresse', help: 'Adresse, téléphone et e-mail : laissez vide pour reprendre la fiche Entreprise (Équiper → Entreprise).', kind: 'textarea' },
+      { key: 'phone', label: 'Téléphone', kind: 'text' },
+      { key: 'email', label: 'E-mail', kind: 'text' },
+      { key: 'hours', label: 'Horaires (texte libre)', help: 'Optionnel. Les horaires détaillés se règlent dans la fiche Entreprise.', kind: 'textarea' },
+      { key: 'image', label: 'Image', help: 'Montrée à la place du formulaire en mise en page « Coordonnées seules ».', kind: 'image' },
     ] },
   ],
   video: [
@@ -135,8 +155,15 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
   ],
   map: [
     { title: 'Localisation', fields: [
+      { key: 'eyebrow', label: 'Petit texte au-dessus du titre', help: 'Ex. « Bureau de Sion ». Vide : « Bureau ».', kind: 'text' },
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'address', label: 'Adresse', kind: 'textarea' },
+      { key: 'phone', label: 'Téléphone', kind: 'text' },
+      { key: 'text', label: 'Texte complémentaire', help: 'Accès, parking, étage…', kind: 'textarea' },
+    ] },
+    { title: 'Position sur la carte', fields: [
+      { key: 'lat', label: 'Latitude', help: 'Sur Google Maps : clic droit sur le lieu, le premier nombre. Sans latitude et longitude, l’adresse seule est affichée, sans carte.', kind: 'text' },
+      { key: 'lng', label: 'Longitude', kind: 'text' },
     ] },
   ],
   story: [
@@ -147,6 +174,13 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
     ] },
     { title: 'Image', fields: [
       { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'imageAlt', label: 'Texte alternatif de l’image (accessibilité)', kind: 'text' },
+    ] },
+    { title: 'Bouton et signature', fields: [
+      { key: 'cta', label: 'Bouton (optionnel)', kind: 'text' },
+      { key: 'ctaHref', label: 'Lien du bouton', help: 'Sans lien, certains gabarits n’affichent pas le bouton.', kind: 'text' },
+      { key: 'signature', label: 'Signature', help: 'Ex. « David Roh, directeur ». Sous le texte.', kind: 'text' },
+      { key: 'signatureImage', label: 'Image de signature', kind: 'image' },
     ] },
   ],
   // Blocs « module » : simple en-tête (titre + intro) au-dessus du widget.
@@ -209,6 +243,18 @@ const IMAGE_RATIOS: { value: string; label: string }[] = [
   { value: '2:3', label: 'Portrait · 2:3' },
   { value: '3:4', label: 'Portrait · 3:4' },
 ]
+
+// En-tête d'un bloc répétable (chiffres, prestations, équipe…) : sur-titre,
+// titre et texte au-dessus des éléments. Les gabarits les lisent depuis
+// longtemps (`c.eyebrow`, `c.title`, `c.text`) ; ils n'étaient posés que par
+// script, et un bloc ajouté dans le CMS arrivait sans titre.
+const REPEAT_HEADER_SPEC: GroupSpec = {
+  title: 'En-tête du bloc', fields: [
+    { key: 'eyebrow', label: 'Petit texte au-dessus du titre', help: 'Optionnel.', kind: 'text' },
+    { key: 'title', label: 'Titre', help: 'Vide : le bloc commence directement par ses éléments.', kind: 'text' },
+    { key: 'text', label: 'Texte d’introduction', help: 'Optionnel.', kind: 'textarea' },
+  ],
+}
 
 const REPEAT_NOUN: Partial<Record<SectionType, string>> = {
   values: 'une valeur', features: 'un atout', process: 'une étape', services: 'un service',
@@ -336,8 +382,15 @@ function RepeatableInspector({ type, content, onChange, ImagePicker }: {
     const next = items.slice(); [next[i], next[j]] = [next[j], next[i]]; commit(next)
   }
 
+  const setChamp = (key: string, v: any) => onChange({ ...content, items, [key]: v })
   return (
     <div className="stack" style={{ gap: 0 }}>
+      <details className="insp-group" open={!!(content.eyebrow || content.title || content.text)}>
+        <summary><span className="insp-summary-title">{REPEAT_HEADER_SPEC.title}</span><Caret /></summary>
+        <div className="insp-fields">
+          {REPEAT_HEADER_SPEC.fields.map(f => <Field key={f.key} spec={f} value={content?.[f.key]} onChange={v => setChamp(f.key, v)} ImagePicker={ImagePicker} />)}
+        </div>
+      </details>
       {items.length === 0 && <p className="muted" style={{ fontSize: 13, marginBottom: 12 }}>Aucun élément pour l’instant.</p>}
       {items.map((item, i) => (
         <details key={i} className="insp-item" open={items.length <= 3}>

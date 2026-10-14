@@ -91,6 +91,9 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     fields: [
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
+      { key: 'image', label: 'Image (certains gabarits l’affichent)', kind: 'image' },
+      { key: 'caption', label: 'Texte alternatif de l’image (accessibilité)', kind: 'text' },
+      { key: 'href', label: 'Lien (optionnel, ex. /prestations)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },
@@ -113,6 +116,8 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'title', label: 'Titre', kind: 'text' },
       { key: 'description', label: 'Description', kind: 'textarea' },
       { key: 'image', label: 'Image', kind: 'image' },
+      { key: 'caption', label: 'Texte alternatif de l’image (accessibilité)', kind: 'text' },
+      { key: 'href', label: 'Lien (optionnel, ex. /prestations/comptabilite)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },
@@ -167,7 +172,11 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { text: '', highlight: '', linkLabel: '', linkHref: '' },
   },
   contact: {
-    key: 'contact', label: 'Contact', kind: 'singleton', variants: DEFAULT_VARIANT,
+    key: 'contact', label: 'Contact', kind: 'singleton',
+    // « coordonnees » : les coordonnées seules, sans le formulaire du site —
+    // quand la page a déjà son bloc Formulaire. Lue par intrio ; les autres
+    // gabarits rendent la mise en page standard.
+    variants: [{ key: 'default', label: 'Formulaire + coordonnées' }, { key: 'coordonnees', label: 'Coordonnées seules (sans formulaire)' }],
     defaultContent: { title: '', subtitle: '' },
   },
   faq: {
@@ -185,6 +194,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'role', label: 'Rôle', kind: 'text' },
       { key: 'image', label: 'Photo', kind: 'image' },
       { key: 'bio', label: 'Bio', kind: 'textarea' },
+      { key: 'email', label: 'E-mail (optionnel, certains gabarits l’affichent)', kind: 'text' },
     ],
     defaultContent: { items: [] },
   },
@@ -576,6 +586,12 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     cta2: z.string().optional(),
     subline: z.string().optional(),
     ctaHref: z.string().optional(),
+    cta2Href: z.string().optional(),
+    // Les contenus existants nomment aussi les boutons button/buttonHref.
+    button: z.string().optional(),
+    buttonHref: z.string().optional(),
+    button2: z.string().optional(),
+    button2Href: z.string().optional(),
     grid: z.array(z.object({ image: z.string().optional(), title: z.string().optional(), category: z.string().optional(), href: z.string().optional() })).optional(),
     footerLeft: z.string().optional(),
     footerRight: z.string().optional(),
@@ -608,9 +624,19 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     linkLabel: z.string().optional(),
     linkHref: z.string().optional(),
   }),
+  // Les coordonnées vivent dans le bloc (intrio les lit là) ; vides, le
+  // gabarit reprend la fiche Entreprise. L'image remplace le formulaire en
+  // variante « coordonnees ».
   contact: z.object({
     title: z.string().optional(),
     subtitle: z.string().optional(),
+    text: z.string().optional(),
+    address: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().optional(),
+    hours: z.string().optional(),
+    image: z.string().optional(),
+    ratio: z.string().optional(),
   }),
   manifesto: z.object({
     eyebrow: z.string().optional(),
@@ -652,6 +678,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     image: z.string().optional(),
     imageAlt: z.string().optional(),
     ratio: z.string().optional(),
+    cta: z.string().optional(),
+    ctaHref: z.string().optional(),
+    signature: z.string().optional(),
+    signatureImage: z.string().optional(),
   }),
   booking: z.object({
     title: z.string().optional(),
