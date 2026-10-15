@@ -104,6 +104,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     variants: [
       { key: 'grid', label: 'Grille de cartes' },
       { key: 'list', label: 'Liste horizontale' },
+      // Un pictogramme par prestation sur un fond uni, posé AU-DESSUS du
+      // titre — et non en photographie assombrie derrière lui. Pour les
+      // métiers qu'une photo n'explique pas : fiscalité, comptabilité, conseil.
+      { key: 'pictos', label: 'Pictogrammes sur fond uni' },
     ],
     // Peu d'éléments → liste (chaque élément a plus de place), beaucoup →
     // grille (reste compact). Ignoré dès qu'une variante est choisie
