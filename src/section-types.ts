@@ -203,7 +203,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   logos: {
-    key: 'logos', label: 'Logos partenaires', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    key: 'logos', label: 'Logos partenaires', kind: 'repeatable',
+    // « marques » : les logos de la société elle-même, en couleur, posés aux
+    // deux bouts d'une bande fine — une fiduciaire et sa société de révision.
+    variants: [{ key: 'default', label: 'Grille de partenaires' }, { key: 'marques', label: 'Vos marques, à gauche et à droite' }],
     fields: [
       { key: 'name', label: 'Nom', kind: 'text' },
       { key: 'image', label: 'Logo', kind: 'image' },
@@ -640,6 +643,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     email: z.string().optional(),
     hours: z.string().optional(),
     image: z.string().optional(),
+    // Le logo de la société, posé à côté des coordonnées — là où le visiteur
+    // cherche à qui il écrit.
+    logo: z.string().optional(),
+    logoAlt: z.string().optional(),
     ratio: z.string().optional(),
   }),
   manifesto: z.object({

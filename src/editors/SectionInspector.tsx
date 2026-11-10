@@ -145,6 +145,10 @@ const SINGLETON_SPECS: Partial<Record<SectionType, GroupSpec[]>> = {
       { key: 'hours', label: 'Horaires (texte libre)', help: 'Optionnel. Les horaires détaillés se règlent dans la fiche Entreprise.', kind: 'textarea' },
       { key: 'image', label: 'Image', help: 'Montrée à la place du formulaire en mise en page « Coordonnées seules ».', kind: 'image' },
     ] },
+    { title: 'Logo', fields: [
+      { key: 'logo', label: 'Logo de la société', help: 'Affiché à côté des coordonnées. Un PNG détouré, sur fond clair.', kind: 'image' },
+      { key: 'logoAlt', label: 'Texte alternatif du logo', help: 'Le nom de la société, en général.', kind: 'text' },
+    ] },
   ],
   video: [
     { title: 'Vidéo', fields: [
@@ -549,6 +553,8 @@ function LibreInspector({ content, onChange, ImagePicker, studio, business }: {
           <Field spec={{ key: 'alt', label: 'Texte alternatif', kind: 'text',
             help: 'Ce que montre l’image. Sert aux moteurs et aux lecteurs d’écran.' }}
             value={el.alt} onChange={v => set(i, 'alt', v)} />
+          <Choix label="Taille" value={el.taille ?? 'pleine'} onChange={v => set(i, 'taille', v)}
+            options={[['pleine', 'Pleine largeur'], ['moyenne', 'Moyenne, centrée'], ['petite', 'Petite, centrée (logo)']]} />
         </>
       )
       case 'bouton': return (
