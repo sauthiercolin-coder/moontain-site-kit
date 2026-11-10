@@ -640,6 +640,10 @@ const singletonSchemas: Partial<Record<SectionType, z.ZodTypeAny>> = {
     email: z.string().optional(),
     hours: z.string().optional(),
     image: z.string().optional(),
+    // Le logo de la société, posé à côté des coordonnées — là où le visiteur
+    // cherche à qui il écrit.
+    logo: z.string().optional(),
+    logoAlt: z.string().optional(),
     ratio: z.string().optional(),
   }),
   manifesto: z.object({
