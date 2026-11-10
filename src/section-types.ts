@@ -203,7 +203,10 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
     defaultContent: { items: [] },
   },
   logos: {
-    key: 'logos', label: 'Logos partenaires', kind: 'repeatable', variants: DEFAULT_VARIANT,
+    key: 'logos', label: 'Logos partenaires', kind: 'repeatable',
+    // « marques » : les logos de la société elle-même, en couleur, posés aux
+    // deux bouts d'une bande fine — une fiduciaire et sa société de révision.
+    variants: [{ key: 'default', label: 'Grille de partenaires' }, { key: 'marques', label: 'Vos marques, à gauche et à droite' }],
     fields: [
       { key: 'name', label: 'Nom', kind: 'text' },
       { key: 'image', label: 'Logo', kind: 'image' },
