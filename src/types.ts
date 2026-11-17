@@ -325,6 +325,8 @@ export interface TeamMemberItem {
   role?: string
   image?: string
   bio?: string
+  /** « Français, allemand, anglais » : affiché sous le rôle par les gabarits qui le lisent. */
+  langues?: string
 }
 
 export interface LogoItem {
