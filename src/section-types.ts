@@ -198,6 +198,7 @@ export const SECTION_TYPES: Record<SectionType, SectionTypeDef> = {
       { key: 'role', label: 'Rôle', kind: 'text' },
       { key: 'image', label: 'Photo', kind: 'image' },
       { key: 'bio', label: 'Bio', kind: 'textarea' },
+      { key: 'langues', label: 'Langues parlées (ex. « Français, allemand, anglais »)', kind: 'text' },
       { key: 'email', label: 'E-mail (optionnel, certains gabarits l’affichent)', kind: 'text' },
     ],
     defaultContent: { items: [] },
